@@ -12,19 +12,19 @@ const Signup = () => {
     formState: { errors },
   } = useForm();
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  const submitHandler = async(data)=>{
-    try{
-      const res = await axios.post("/user/register",data)
-      if(res.status==201){
-        toast.success("User Registered Successfully")
+  const submitHandler = async (data) => {
+    try {
+      const res = await axios.post("http://localhost:3800/user/register", data);
+      if (res.status == 201) {
+        toast.success("User Registered Successfully");
         navigate("/")
       }
-    }catch(err){
-      toast.error(err.response.data.message)
+    } catch (err) {
+      toast.error(err.response.data.message);
     }
-  }
+  };
 
   const password = watch("password");
 
@@ -51,13 +51,11 @@ const Signup = () => {
 
       {/* Glass Card */}
       <div className="relative z-10 w-full max-w-md bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl shadow-2xl p-8">
-
         <h2 className="text-3xl font-bold text-center text-white mb-6">
           Create Account 🚗
         </h2>
 
         <form onSubmit={handleSubmit(submitHandler)} className="space-y-4">
-
           {/* Name */}
           <div>
             <input
@@ -91,9 +89,7 @@ const Signup = () => {
               })}
             />
             {errors.name && (
-              <p className="text-red-400 text-sm mt-1">
-                {errors.name.message}
-              </p>
+              <p className="text-red-400 text-sm mt-1">{errors.name.message}</p>
             )}
           </div>
 
@@ -111,6 +107,23 @@ const Signup = () => {
               <p className="text-red-400 text-sm mt-1">
                 {errors.email.message}
               </p>
+            )}
+          </div>
+
+          {/* Role */}
+          <div>
+            <select
+              className={`w-full px-4 py-2 rounded-lg bg-white/20 text-white placeholder-gray-300 border ${
+                errors.role ? "border-red-500" : "border-white/30"
+              } focus:outline-none focus:ring-2 focus:ring-white`}
+              {...register("role", { required: "Role is required" })}
+            >
+              <option value="" disabled hidden>Select Role</option>
+              <option value="user" className="text-white bg-black/70">Buyer</option>
+              <option value="admin" className="text-white bg-black/70">Seller</option>
+            </select>
+            {errors.role && (
+              <p className="text-red-400 text-sm mt-1">{errors.role.message}</p>
             )}
           </div>
 
@@ -140,9 +153,7 @@ const Signup = () => {
               type="password"
               placeholder="Confirm Password"
               className={`w-full px-4 py-2 rounded-lg bg-white/20 text-white placeholder-gray-300 border ${
-                errors.confirmPassword
-                  ? "border-red-500"
-                  : "border-white/30"
+                errors.confirmPassword ? "border-red-500" : "border-white/30"
               } focus:outline-none focus:ring-2 focus:ring-white`}
               {...register("confirmPassword", {
                 required: "Confirm password required",

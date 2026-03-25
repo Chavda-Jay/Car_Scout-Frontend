@@ -6,12 +6,14 @@ import { ToastContainer } from 'react-toastify'
 //import './App.css'
 import axios from 'axios'
 
+
 function App() {
   const [count, setCount] = useState(0)
-  axios.defaults.baseURL = "http://localhost:3800"
+  //axios.defaults.baseURL = "http://localhost:3800"
 
   return (
     <>
+     
       <AppRouter></AppRouter>
       <ToastContainer
         position="top-center"

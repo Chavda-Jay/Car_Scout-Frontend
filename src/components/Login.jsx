@@ -3,39 +3,53 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
 
 const Login = () => {
-
-  const navigate = useNavigate() //all hooks will be declare at component level...
+  const navigate = useNavigate(); //all hooks will be declare at component level...
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
 
-  const submitHandler = async(data)=>{
-    try{
-      const res = await axios.post("/user/login",data)
-      console.log("response..",res)
-      if(res.status==200){
-        toast.success("Login Success")
+  const submitHandler = async (data) => {
+    try {
+      //const res = await axios.post("/user/login",data)
+      const res = await axios.post("http://localhost:3800/user/login", data);
+      console.log("Full Response..", res.data);
+
+      if (res.status == 200) {
+        toast.success("Login Success");
+
+        const user = res.data.user || res.data.data || res.data;
+        if (!user || !user.role) {
+          toast.error("User data invalid ❌");
+          return;
+        }
+        console.log("role...", user.role);
+
+        //token
+        // console.log(res.data.token) //permenent storage -->Browser
+        // localStorage.setItem("token",res.data.token)
+        // localStorage.setItem("role",res.data.role)
+        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("role", user.role);
+
         //navigation- role based
-        if(res.data.role=="user"||res.data.role=="USER"){
-          navigate("/user")
-        }
-        else if(res.data.role=="admin" || res.data.role=="ADMIN"){
-          navigate("/admin")
-        }
-        else{
-          toast.error("Invalid Role")
-          navigate("/") // redirect again login
+        if (user.role == "user" || user.role == "USER") {
+          navigate("/user");
+        } else if (user.role == "admin" || user.role == "ADMIN") {
+          navigate("/admin");
+        } else {
+          toast.error("Invalid Role");
+          navigate("/"); // redirect again login
         }
       }
-    }catch(err){
-      toast.error(err.response.data.message)
+    } catch (err) {
+      toast.error(err.response.data.message);
     }
-  }
-
+  };
 
   const onSubmit = (data) => {
     console.log(data);
@@ -60,13 +74,11 @@ const Login = () => {
 
       {/* Glass Card (Same as Signup) */}
       <div className="relative z-10 w-full max-w-md bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl shadow-2xl p-8">
-
         <h2 className="text-3xl font-bold text-center text-white mb-6">
           Welcome Back 🚗
         </h2>
 
         <form onSubmit={handleSubmit(submitHandler)} className="space-y-4">
-
           {/* Email */}
           <div>
             <input
@@ -115,8 +127,15 @@ const Login = () => {
           >
             Login
           </button>
-
         </form>
+
+        {/* ✅ Forgot Password Link */}
+        <p className="text-center mt-4 text-gray-300 text-sm">
+          Forgot Password?{" "}
+          <Link to="/forgotpassword" className="text-blue-400 hover:underline">
+            Click Here
+          </Link>
+        </p>
 
         <p className="text-center text-gray-300 mt-4 text-sm">
           Don’t have an account?{" "}
