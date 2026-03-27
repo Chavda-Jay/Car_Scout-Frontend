@@ -119,8 +119,8 @@ const Signup = () => {
               {...register("role", { required: "Role is required" })}
             >
               <option value="" disabled hidden>Select Role</option>
-              <option value="user" className="text-white bg-black/70">Buyer</option>
-              <option value="admin" className="text-white bg-black/70">Seller</option>
+              <option value="user" className="text-white bg-black/70">User</option>
+              <option value="admin" className="text-white bg-black/70">Admin</option>
             </select>
             {errors.role && (
               <p className="text-red-400 text-sm mt-1">{errors.role.message}</p>
