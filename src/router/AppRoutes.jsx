@@ -22,6 +22,7 @@ import ManageUsers from "../pages/admin/ManageUsers";
 import AddUser from "../pages/admin/AddUser";
 import { Forgotpassword } from "../components/ForgotPassword";
 import { ResetPassword } from "../components/ResetPassword";
+import SellerHome from "../pages/seller/SellerHome";
 
 const router = createBrowserRouter([
 
@@ -56,7 +57,18 @@ const router = createBrowserRouter([
       { path: "users", element: <ManageUsers/>},
       { path: "adduser", element:<AddUser/>}
     ]
-  }
+  },
+
+  //SELLER PANEL
+  {
+  path: "/seller",
+  element: <UserNavbar />,
+  children: [
+    {
+      path: "/seller",element: <SellerHome/>
+    }
+  ]
+}
 
 ]);
 

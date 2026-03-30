@@ -2,6 +2,7 @@ import axios from "axios";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify"; // optional, for nice alerts
 
 export const Forgotpassword = () => {
   const {
@@ -9,30 +10,32 @@ export const Forgotpassword = () => {
     handleSubmit,
     formState: { errors },
   } = useForm();
+  
   const navigate = useNavigate();
 
   const submitHandler = async (data) => {
-    console.log(data);
-    const res = await axios.post(
-      "http://localhost:3800/user/forgotpassword",
-      data,
-    );
-    console.log(res.data);
-    if (res.status == 200) {
-      navigate("/");
+    try {
+      console.log("Submitted Email:", data);
+      const res = await axios.post(
+        "http://localhost:3800/user/forgotpassword",
+        data
+      );
+      console.log(res.data);
+
+      if (res.status === 200) {
+        // 🔹 Success message
+        toast.success("Reset link sent! Check your email.");
+        // 🔹 Redirect to login after 2 seconds
+        setTimeout(() => navigate("/"), 2000);
+      }
+    } catch (err) {
+      console.log(err);
+      // 🔹 Show proper error
+      toast.error(err.response?.data?.message || "Something went wrong");
     }
   };
+
   return (
-    // <div>
-    //     <h1>FORGOT PASSWORD</h1>
-    //     <form onSubmit={handleSubmit(submitHandler)}>
-    //         <input type="email" placeholder="Email" {...register("email",{
-    //             required:"Email is required"
-    //         })}/>
-    //         {errors.email && <p>{errors.email.message}</p>}
-    //         <button type="submit">Submit</button>
-    //     </form>
-    // </div>
     <div className="min-h-screen flex items-center justify-center bg-black">
       <div className="w-full max-w-md bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl shadow-2xl p-8">
         <h2 className="text-3xl font-bold text-center text-white mb-6">
@@ -50,7 +53,6 @@ export const Forgotpassword = () => {
               required: "Email is required",
             })}
           />
-
           {errors.email && (
             <p className="text-red-400 text-sm">{errors.email.message}</p>
           )}

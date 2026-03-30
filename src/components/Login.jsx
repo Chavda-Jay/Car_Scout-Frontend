@@ -13,43 +13,112 @@ const Login = () => {
     formState: { errors },
   } = useForm();
 
-  const submitHandler = async (data) => {
-    try {
-      //const res = await axios.post("/user/login",data)
-      const res = await axios.post("http://localhost:3800/user/login", data);
-      console.log("Full Response..", res.data);
+//   const submitHandler = async (data) => {
+//   try {
+//     const res = await axios.post("http://localhost:3800/user/login", data);
 
-      if (res.status == 200) {
-        toast.success("Login Success");
+//     console.log("Full Response:", res);
 
-        const user = res.data.user || res.data.data || res.data;
-        if (!user || !user.role) {
-          toast.error("User data invalid ❌");
-          return;
-        }
-        console.log("role...", user.role);
+//     if (!res || !res.data) {
+//       toast.error("No response from server ❌");
+//       return;
+//     }
 
-        //token
-        // console.log(res.data.token) //permenent storage -->Browser
-        // localStorage.setItem("token",res.data.token)
-        // localStorage.setItem("role",res.data.role)
-        localStorage.setItem("user", JSON.stringify(user));
-        localStorage.setItem("role", user.role);
+//     const userData = res.data.user || res.data.data || res.data;
 
-        //navigation- role based
-        if (user.role == "user" || user.role == "USER") {
-          navigate("/user");
-        } else if (user.role == "admin" || user.role == "ADMIN") {
-          navigate("/admin");
-        } else {
-          toast.error("Invalid Role");
-          navigate("/"); // redirect again login
-        }
-      }
-    } catch (err) {
-      toast.error(err.response.data.message);
+//     if (!userData) {
+//       toast.error("User data missing ❌");
+//       return;
+//     }
+
+//     // 🔥 FIX (IMPORTANT)
+//     const finalUser = {
+//       ...userData,
+//       _id: userData._id || userData.id
+//     };
+
+//     console.log("Final User:", finalUser);
+
+//     localStorage.setItem("user", JSON.stringify(finalUser));
+//     localStorage.setItem("role", finalUser.role);
+
+//     toast.success("Login Success ✅");
+
+//     // 🔁 Navigation
+//     if (finalUser.role === "user" || finalUser.role === "USER") {
+//       navigate("/user");
+//     } else if (finalUser.role === "admin" || finalUser.role === "ADMIN") {
+//       navigate("/admin");
+//     } else if (finalUser.role === "seller" || finalUser.role === "selle") {
+//       navigate("/seller");
+//     } else {
+//       toast.error("Invalid Role ❌");
+//     }
+
+//   } catch (err) {
+//     console.log("LOGIN ERROR:", err);
+
+//     // 🔥 SAFE ERROR HANDLING
+//     const message =
+//       err.response?.data?.message ||
+//       err.message ||
+//       "Login Failed ❌";
+
+//     toast.error(message);
+//   }
+// };
+
+const submitHandler = async (data) => {
+  try {
+    const res = await axios.post("http://localhost:3800/user/login", data);
+
+    console.log("Full Response:", res);
+
+    if (!res || !res.data || !res.data.user) {
+      toast.error("User data missing ❌");
+      return;
     }
-  };
+
+    const userData = res.data.user;
+
+    // ✅ FINAL USER
+    const finalUser = {
+      ...userData,
+      _id: userData._id || userData.id,
+    };
+
+    console.log("Final User:", finalUser);
+
+    // ✅ SAVE
+    localStorage.setItem("user", JSON.stringify(finalUser));
+    localStorage.setItem("role", finalUser.role);
+    localStorage.setItem("token", res.data.token); // optional but good
+
+    toast.success("Login Success ✅");
+
+    // 🔁 Navigation
+    if (finalUser.role === "user" || finalUser.role === "USER") {
+      navigate("/user");
+    } else if (finalUser.role === "admin" || finalUser.role === "ADMIN") {
+      navigate("/admin");
+    } else if (finalUser.role === "seller" || finalUser.role === "SELLER") {
+      navigate("/seller");
+    } else {
+      toast.error("Invalid Role ❌");
+    }
+
+  } catch (err) {
+    console.log("LOGIN ERROR:", err);
+
+    const message =
+      err.response?.data?.message ||
+      err.message ||
+      "Login Failed ❌";
+
+    toast.error(message);
+  }
+};
+
 
   const onSubmit = (data) => {
     console.log(data);
