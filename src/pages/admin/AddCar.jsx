@@ -3,6 +3,7 @@ import API from "../../api/Api";
 import { toast } from "react-toastify";
 
 const AddCar = () => {
+  const [image, setImage] = useState(null);
   const [car, setCar] = useState({
     brand: "",
     model: "",
@@ -18,24 +19,44 @@ const AddCar = () => {
     setCar({ ...car, [e.target.name]: e.target.value });
   };
 
-   const handleSubmit = async (e) => {
+const handleImageChange = (e) => {
+    setImage(e.target.files[0]);
+    setPreview(URL.createObjectURL(e.target.files[0])); // 🔥 live preview
+  };
+
+
+const handleSubmit = async (e) => {
   e.preventDefault();
 
   try {
     const user = JSON.parse(localStorage.getItem("user"));
 
-    // ✅ ADD THIS CHECK
     if (!user) {
       toast.error("User not logged in ❌");
       return;
     }
 
-    const formData = {
-      ...car,
-      sellerId: user._id,
-    };
+    // 🔥 IMPORTANT: FormData use karo
+    const formData = new FormData();
 
-    await API.post("/car/car", formData);
+    formData.append("brand", car.brand);
+    formData.append("model", car.model);
+    formData.append("year", car.year);
+    formData.append("price", car.price);
+    formData.append("mileage", car.mileage);
+    formData.append("fuelType", car.fuelType);
+    formData.append("description", car.description);
+    formData.append("location", car.location);
+    formData.append("sellerId", user._id);
+
+    // 🔥 IMAGE ADD (MOST IMPORTANT)
+    formData.append("image", image);
+
+    await API.post("/car/car", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
     toast.success("Car Added Successfully 🚗");
 
@@ -48,26 +69,27 @@ const AddCar = () => {
       fuelType: "",
       description: "",
       location: "",
+      images: null, // ✅ reset image
     });
 
   } catch (err) {
-    console.log(err); // 👈 ADD THIS (DEBUG)
+    console.log(err);
     toast.error("Failed to add car ❌");
   }
 };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 p-6">
-
       <div className="w-full max-w-3xl bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-2xl shadow-xl text-white">
-
         {/* TITLE */}
         <h2 className="text-3xl font-bold mb-8 text-center bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
           🚗 Add New Car
         </h2>
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-5">
-
+        <form
+          onSubmit={handleSubmit}
+          className="grid grid-cols-1 md:grid-cols-2 gap-5"
+        >
           {/* BRAND */}
           <div>
             <label className="text-sm text-gray-400">Brand</label>
@@ -152,6 +174,16 @@ const AddCar = () => {
             />
           </div>
 
+          {/* Image */}
+          <div className="md:col-span-2">
+            <label className="text-sm text-gray-400">Car Image</label>
+            <input
+              type="file"
+              onChange={(e) => setImage(e.target.files[0])}
+              className="w-full mt-1 p-3 rounded-lg bg-white/10 border border-white/10"
+            />
+          </div>
+
           {/* DESCRIPTION */}
           <div className="md:col-span-2">
             <label className="text-sm text-gray-400">Description</label>
@@ -171,7 +203,6 @@ const AddCar = () => {
               Add Car
             </button>
           </div>
-
         </form>
       </div>
     </div>

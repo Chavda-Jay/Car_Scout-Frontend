@@ -60,13 +60,12 @@ const router = createBrowserRouter([
   },
 
   //SELLER PANEL
-  {
+ {
   path: "/seller",
   element: <UserNavbar />,
   children: [
-    {
-      path: "/seller",element: <SellerHome/>
-    }
+    { index: true, element: <SellerHome />},
+    { path: "addcar", element: <AddCar /> }
   ]
 }
 
