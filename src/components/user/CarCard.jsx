@@ -8,7 +8,7 @@ const CarCard = ({ car }) => {
       {/* IMAGE */}
       <div className="relative">
         <img
-          src={car.images || "https://via.placeholder.com/300"} // ✅ fixed
+          src={car.images?.[0] || "https://via.placeholder.com/300"} // ✅ fixed
           alt={car.model}
           className="h-48 w-full object-cover"
         />

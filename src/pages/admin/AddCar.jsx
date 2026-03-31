@@ -3,7 +3,7 @@ import API from "../../api/Api";
 import { toast } from "react-toastify";
 
 const AddCar = () => {
-  const [image, setImage] = useState(null);
+  const [images, setImages] = useState([]);
   const [car, setCar] = useState({
     brand: "",
     model: "",
@@ -19,69 +19,91 @@ const AddCar = () => {
     setCar({ ...car, [e.target.name]: e.target.value });
   };
 
-const handleImageChange = (e) => {
-    setImage(e.target.files[0]);
-    setPreview(URL.createObjectURL(e.target.files[0])); // 🔥 live preview
-  };
+  // 🔥 IMAGE VALIDATION (FINAL PRO)
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
 
-
-const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  try {
-    const user = JSON.parse(localStorage.getItem("user"));
-
-    if (!user) {
-      toast.error("User not logged in ❌");
+    // ❌ No image
+    if (files.length === 0) {
+      toast.error("Please select at least 1 image ❌");
       return;
     }
 
-    // 🔥 IMPORTANT: FormData use karo
-    const formData = new FormData();
+    // ❌ Max limit
+    if (files.length > 5) {
+      toast.error("Max 5 images allowed ❌");
+      return;
+    }
 
-    formData.append("brand", car.brand);
-    formData.append("model", car.model);
-    formData.append("year", car.year);
-    formData.append("price", car.price);
-    formData.append("mileage", car.mileage);
-    formData.append("fuelType", car.fuelType);
-    formData.append("description", car.description);
-    formData.append("location", car.location);
-    formData.append("sellerId", user._id);
+    // ✅ OK
+    setImages(files);
+  };
 
-    // 🔥 IMAGE ADD (MOST IMPORTANT)
-    formData.append("image", image);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    await API.post("/car/car", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    try {
+      const user = JSON.parse(localStorage.getItem("user"));
 
-    toast.success("Car Added Successfully 🚗");
+      if (!user) {
+        toast.error("User not logged in ❌");
+        return;
+      }
 
-    setCar({
-      brand: "",
-      model: "",
-      year: "",
-      price: "",
-      mileage: "",
-      fuelType: "",
-      description: "",
-      location: "",
-      images: null, // ✅ reset image
-    });
+      // ❌ Image not selected
+      if (images.length === 0) {
+        toast.error("Please upload at least 1 image ❌");
+        return;
+      }
 
-  } catch (err) {
-    console.log(err);
-    toast.error("Failed to add car ❌");
-  }
-};
+      const formData = new FormData();
+
+      formData.append("brand", car.brand);
+      formData.append("model", car.model);
+      formData.append("year", car.year);
+      formData.append("price", car.price);
+      formData.append("mileage", car.mileage);
+      formData.append("fuelType", car.fuelType);
+      formData.append("description", car.description);
+      formData.append("location", car.location);
+      formData.append("sellerId", user._id);
+
+      // 🔥 Multiple Images Upload
+      images.forEach((img) => {
+        formData.append("images", img);
+      });
+
+      await API.post("/car/car", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      toast.success("Car Added Successfully 🚗");
+
+      // 🔄 Reset
+      setCar({
+        brand: "",
+        model: "",
+        year: "",
+        price: "",
+        mileage: "",
+        fuelType: "",
+        description: "",
+        location: "",
+      });
+
+      setImages([]); // ✅ important
+    } catch (err) {
+      console.log(err);
+      toast.error("Failed to add car ❌");
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 p-6">
       <div className="w-full max-w-3xl bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-2xl shadow-xl text-white">
-        {/* TITLE */}
+        
         <h2 className="text-3xl font-bold mb-8 text-center bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
           🚗 Add New Car
         </h2>
@@ -90,119 +112,105 @@ const handleSubmit = async (e) => {
           onSubmit={handleSubmit}
           className="grid grid-cols-1 md:grid-cols-2 gap-5"
         >
-          {/* BRAND */}
+
           <div>
             <label className="text-sm text-gray-400">Brand</label>
             <input
               name="brand"
               value={car.brand}
               onChange={handleChange}
-              placeholder="Enter brand"
-              className="w-full mt-1 p-3 rounded-lg bg-white/10 border border-white/10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full mt-1 p-3 rounded-lg bg-white/10 border border-white/10 focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
-          {/* MODEL */}
           <div>
             <label className="text-sm text-gray-400">Model</label>
             <input
               name="model"
               value={car.model}
               onChange={handleChange}
-              placeholder="Enter model"
               className="w-full mt-1 p-3 rounded-lg bg-white/10 border border-white/10 focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
-          {/* YEAR */}
           <div>
             <label className="text-sm text-gray-400">Year</label>
             <input
               name="year"
               value={car.year}
               onChange={handleChange}
-              placeholder="e.g. 2022"
               className="w-full mt-1 p-3 rounded-lg bg-white/10 border border-white/10 focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
-          {/* PRICE */}
           <div>
             <label className="text-sm text-gray-400">Price</label>
             <input
               name="price"
               value={car.price}
               onChange={handleChange}
-              placeholder="₹ Price"
               className="w-full mt-1 p-3 rounded-lg bg-white/10 border border-white/10 focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
-          {/* MILEAGE */}
           <div>
             <label className="text-sm text-gray-400">Mileage</label>
             <input
               name="mileage"
               value={car.mileage}
               onChange={handleChange}
-              placeholder="e.g. 20 km/l"
               className="w-full mt-1 p-3 rounded-lg bg-white/10 border border-white/10 focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
-          {/* FUEL */}
           <div>
             <label className="text-sm text-gray-400">Fuel Type</label>
             <input
               name="fuelType"
               value={car.fuelType}
               onChange={handleChange}
-              placeholder="Petrol / Diesel"
               className="w-full mt-1 p-3 rounded-lg bg-white/10 border border-white/10 focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
-          {/* LOCATION */}
           <div className="md:col-span-2">
             <label className="text-sm text-gray-400">Location</label>
             <input
               name="location"
               value={car.location}
               onChange={handleChange}
-              placeholder="City / Area"
               className="w-full mt-1 p-3 rounded-lg bg-white/10 border border-white/10 focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
-          {/* Image */}
+          {/* 🔥 IMAGE INPUT */}
           <div className="md:col-span-2">
-            <label className="text-sm text-gray-400">Car Image</label>
+            <label className="text-sm text-gray-400">Car Images</label>
             <input
               type="file"
-              onChange={(e) => setImage(e.target.files[0])}
+              multiple
+              onChange={handleImageChange}
               className="w-full mt-1 p-3 rounded-lg bg-white/10 border border-white/10"
             />
           </div>
 
-          {/* DESCRIPTION */}
           <div className="md:col-span-2">
             <label className="text-sm text-gray-400">Description</label>
             <textarea
               name="description"
               value={car.description}
               onChange={handleChange}
-              placeholder="Enter details..."
               rows="4"
               className="w-full mt-1 p-3 rounded-lg bg-white/10 border border-white/10 focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
-          {/* BUTTON */}
           <div className="md:col-span-2 mt-4">
             <button className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 transition font-semibold shadow-lg">
               Add Car
             </button>
           </div>
+
         </form>
       </div>
     </div>

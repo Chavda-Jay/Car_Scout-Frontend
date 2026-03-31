@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import API from "../../api/Api";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/thumbs";
+import { Navigation, Thumbs } from "swiper/modules";
 
 const CarDetails = () => {
   const { id } = useParams();
@@ -10,6 +15,7 @@ const CarDetails = () => {
   const [offerPrice, setOfferPrice] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [loading, setLoading] = useState(true);
+  const [thumbsSwiper, setThumbsSwiper] = useState(null);
 
   const getCarDetails = async () => {
     try {
@@ -27,83 +33,53 @@ const CarDetails = () => {
     window.scrollTo(0, 0);
   }, [id]);
 
-  // const handleSubmitOffer = async () => {
-  //   const user = JSON.parse(localStorage.getItem("user"));
-  //   const buyerId = user?._id;
 
-  //   const sellerId = car.sellerId;
-  //   const carId = car._id;
-
-  //   if (!buyerId) return alert("Login required");
-  //   if (!offerPrice || Number(offerPrice) <= 0)
-  //     return alert("Enter valid price");
-
-  //   try {
-  //     const res = await API.post("/offer", {
-  //       buyerId,
-  //       sellerId,
-  //       carId,
-  //       offerPrice: Number(offerPrice),
-  //     });
-
-  //     setSuccessMsg(res.data.message || "Offer Sent ✅");
-  //     setOfferPrice("");
-
-  //     setTimeout(() => {
-  //       setShowModal(false);
-  //       setSuccessMsg("");
-  //     }, 2000);
-  //   } catch (err) {
-  //     alert("Offer Failed ❌");
-  //   }
-  // };
   const handleSubmitOffer = async () => {
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-  console.log("USER:", user);
+    console.log("USER:", user);
 
-  const buyerId = user._id;
-  const sellerId = car.sellerId;
-  const carId = car._id;
+    const buyerId = user._id;
+    const sellerId = car.sellerId;
+    const carId = car._id;
 
-  if (!buyerId) {
-    alert("Login required");
-    return;
-  }
+    if (!buyerId) {
+      alert("Login required");
+      return;
+    }
 
-  if (!offerPrice || Number(offerPrice) <= 0) {
-    alert("Enter valid price");
-    return;
-  }
+    if (!offerPrice || Number(offerPrice) <= 0) {
+      alert("Enter valid price");
+      return;
+    }
 
-  console.log("SENDING DATA:", {
-    buyerId,
-    sellerId,
-    carId,
-    offerPrice,
-  });
-
-  try {
-    const res = await API.post("/offer", {
+    console.log("SENDING DATA:", {
       buyerId,
       sellerId,
       carId,
-      offerPrice: Number(offerPrice),
+      offerPrice,
     });
 
-    setSuccessMsg(res.data.message || "Offer Sent ✅");
-    setOfferPrice("");
+    try {
+      const res = await API.post("/offer", {
+        buyerId,
+        sellerId,
+        carId,
+        offerPrice: Number(offerPrice),
+      });
 
-    setTimeout(() => {
-      setShowModal(false);
-      setSuccessMsg("");
-    }, 2000);
+      setSuccessMsg(res.data.message || "Offer Sent ✅");
+      setOfferPrice("");
 
-  } catch (err) {
-    console.log("ERROR:", err);
-    alert("Offer Failed ❌");
-  }
-};
+      setTimeout(() => {
+        setShowModal(false);
+        setSuccessMsg("");
+      }, 2000);
+    } catch (err) {
+      console.log("ERROR:", err);
+      alert("Offer Failed ❌");
+    }
+  };
 
   if (loading)
     return <p className="text-white text-center mt-10">Loading...</p>;
@@ -113,22 +89,54 @@ const CarDetails = () => {
 
   return (
     <div className="bg-gray-900 min-h-screen text-white p-6">
-
       {/* 🔥 MAIN GRID */}
       <div className="grid md:grid-cols-2 gap-10">
 
         {/* 🔥 IMAGE SECTION */}
         <div>
-          <img
-            src={car.images || "https://dummyimage.com/600x400"}
-            alt={car.brand}
-            className="w-full h-96 object-cover rounded-xl shadow-lg"
-          />
-        </div>
+  {/* 🔥 MAIN BIG IMAGE SLIDER */}
+  <Swiper
+    spaceBetween={10}
+    navigation={true}
+    thumbs={{ swiper: thumbsSwiper }}
+    modules={[Navigation, Thumbs]}
+    className="mb-4 rounded-xl overflow-hidden"
+  >
+    {car.images?.map((img, index) => (
+      <SwiperSlide key={index}>
+        <img
+          src={img}
+          alt="car"
+          className="w-full h-96 object-cover"
+        />
+      </SwiperSlide>
+    ))}
+  </Swiper>
+  
+
+  {/* 🔥 THUMBNAIL SLIDER */}
+  <Swiper
+    onSwiper={setThumbsSwiper}
+    spaceBetween={10}
+    slidesPerView={4}
+    freeMode={true}
+    watchSlidesProgress={true}
+    modules={[Thumbs]}
+  >
+    {car.images?.map((img, index) => (
+      <SwiperSlide key={index}>
+        <img
+          src={img}
+          alt="thumb"
+          className="w-full h-24 object-cover rounded-lg cursor-pointer"
+        />
+      </SwiperSlide>
+    ))}
+  </Swiper>
+</div>
 
         {/* 🔥 DETAILS */}
         <div className="bg-gray-800 p-6 rounded-xl shadow-lg">
-
           <h1 className="text-3xl font-bold mb-2">
             {car.brand} {car.model}
           </h1>
@@ -144,7 +152,6 @@ const CarDetails = () => {
 
           {/* 🔥 INFO GRID */}
           <div className="mt-6 grid grid-cols-2 gap-4">
-
             <div className="bg-gray-700 p-3 rounded">
               <p className="text-sm text-gray-400">Brand</p>
               <p className="font-bold">{car.brand}</p>
@@ -164,12 +171,10 @@ const CarDetails = () => {
               <p className="text-sm text-gray-400">Fuel</p>
               <p className="font-bold">{car.fuelType}</p>
             </div>
-
           </div>
 
           {/* 🔥 ACTION BUTTONS */}
           <div className="mt-8 space-y-3">
-
             <button
               onClick={() => setShowModal(true)}
               className="w-full bg-blue-600 py-3 rounded-lg hover:bg-blue-700 font-semibold"
@@ -180,9 +185,7 @@ const CarDetails = () => {
             <button className="w-full bg-green-600 py-3 rounded-lg hover:bg-green-700 font-semibold">
               Book Test Drive 🚗
             </button>
-
           </div>
-
         </div>
       </div>
 
@@ -198,7 +201,6 @@ const CarDetails = () => {
       {showModal && (
         <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50">
           <div className="bg-gray-800 p-6 rounded-xl w-96">
-
             <h2 className="text-xl font-bold mb-4">Make Offer</h2>
 
             {successMsg ? (
@@ -230,11 +232,9 @@ const CarDetails = () => {
                 </div>
               </>
             )}
-
           </div>
         </div>
       )}
-
     </div>
   );
 };
