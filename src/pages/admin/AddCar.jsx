@@ -44,6 +44,7 @@ const AddCar = () => {
 
     try {
       const user = JSON.parse(localStorage.getItem("user"));
+      console.log("USER:", user); // 👈 ADD THIS
 
       if (!user) {
         toast.error("User not logged in ❌");

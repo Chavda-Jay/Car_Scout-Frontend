@@ -23,6 +23,7 @@ import AddUser from "../pages/admin/AddUser";
 import { Forgotpassword } from "../components/ForgotPassword";
 import { ResetPassword } from "../components/ResetPassword";
 import SellerHome from "../pages/seller/SellerHome";
+import MyListings from "../pages/user/MyListings";
 
 const router = createBrowserRouter([
 
@@ -40,7 +41,8 @@ const router = createBrowserRouter([
       { index: true, element: <Home /> },
       { path: "cars", element: <CarList /> },
       { path: "offers", element: <MyOffers /> },
-      { path: "car/:id", element: <CarDetail/>}
+      { path: "car/:id", element: <CarDetail/>},
+      { path: "/user/my-listings", element: <MyListings/>}
     ]
   },
 
