@@ -114,11 +114,11 @@ const AddUser = () => {
               onChange={handleChange}
               className="w-full mt-1 p-3 rounded-xl bg-gray-800 text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-blue-500 transition"
             >
-              <option className="bg-gray-800 text-white" value="user">
-                User
+              <option className="bg-gray-800 text-white" value="buyer">
+                Buyer
               </option>
-              <option className="bg-gray-800 text-white" value="admin">
-                Admin
+              <option className="bg-gray-800 text-white" value="seller">
+                Seller
               </option>
             </select>
           </div>

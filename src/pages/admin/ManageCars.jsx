@@ -24,7 +24,7 @@ const ManageCars = () => {
   const deleteCar = async (id) => {
   if (window.confirm("Are you sure you want to delete this car?")) {
     try {
-      await API.delete(`/car/car/${id}`);
+      await API.delete(`/car/${id}`);
       toast.success("Car Deleted 🗑️");
       getCars();
     } catch (err) {

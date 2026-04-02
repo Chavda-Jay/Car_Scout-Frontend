@@ -47,15 +47,6 @@ export const UserNavbar = () => {
                 </Link>
               </li>
 
-              <li>
-                <Link
-                  to="/user/my-listings" // 👈 NEW ROUTE
-                  className="px-3 py-2 rounded-lg hover:bg-gray-800 text-gray-300 hover:text-white"
-                >
-                  My Listings
-                </Link>
-              </li>
-
               {/* 🔥 FIXED: Offers */}
               <li>
                 <Link

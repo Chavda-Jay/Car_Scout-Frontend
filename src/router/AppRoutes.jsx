@@ -9,7 +9,7 @@ import { AdminSidebar } from "../components/admin/AdminSidebar";
 // USER PAGES
 import Home from "../pages/user/Home";
 import CarList from "../pages/user/CarList";
-import MyOffers from "../pages/user/MyOffers";
+import MyOffers from "../pages/user/Myoffers";
 import CarDetail from "../pages/user/CarDetail";
 
 // ADMIN PAGES
@@ -23,7 +23,9 @@ import AddUser from "../pages/admin/AddUser";
 import { Forgotpassword } from "../components/ForgotPassword";
 import { ResetPassword } from "../components/ResetPassword";
 import SellerHome from "../pages/seller/SellerHome";
-import MyListings from "../pages/user/MyListings";
+import MyListings from "../pages/seller/MyListings";
+import SellerOffers from "../pages/seller/SellerOffers";
+
 
 const router = createBrowserRouter([
 
@@ -40,9 +42,9 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <Home /> },
       { path: "cars", element: <CarList /> },
-      { path: "offers", element: <MyOffers /> },
+      { path: "offers", element:<MyOffers/>},
       { path: "car/:id", element: <CarDetail/>},
-      { path: "/user/my-listings", element: <MyListings/>}
+      
     ]
   },
 
@@ -62,12 +64,14 @@ const router = createBrowserRouter([
   },
 
   //SELLER PANEL
- {
+{
   path: "/seller",
   element: <UserNavbar />,
   children: [
     { index: true, element: <SellerHome />},
-    { path: "addcar", element: <AddCar /> }
+    { path: "addcar", element: <AddCar /> },
+    { path: "offers", element: <SellerOffers/>},
+    { path: "my-listings", element: <MyListings/>}
   ]
 }
 

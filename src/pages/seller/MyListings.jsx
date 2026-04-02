@@ -35,11 +35,11 @@ const MyListings = () => {
 
     try {
       await API.delete(`/car/${id}`);
-      toast.success("Car Deleted Successfully ❌");
+      toast.success("Car Deleted Successfully ");
       getMyCars();
     } catch (err) {
       console.log(err);
-      toast.error("Delete Failed ❌");
+      toast.error("Delete Failed ");
     }
   };
 
@@ -66,13 +66,13 @@ const MyListings = () => {
 
       await API.put(`/car/${editCar._id}`, formData);
 
-      toast.success("Car Updated with Images ✅");
+      toast.success("Car Updated with Images ");
 
       setEditCar(null);
       getMyCars();
     } catch (err) {
       console.log(err);
-      toast.error("Update Failed ❌");
+      toast.error("Update Failed ");
     }
   };
 
@@ -81,7 +81,7 @@ const MyListings = () => {
       <h2 className="text-2xl font-bold mb-4">My Listings</h2>
 
       {cars.length === 0 ? (
-        <p>No Cars Found ❌</p>
+        <p>No Cars Found </p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {cars.map((car) => (
@@ -123,7 +123,7 @@ const MyListings = () => {
       {editCar && (
         <div className="bg-gray-900/80 backdrop-blur-md p-6 mt-6 rounded-xl shadow-lg border border-gray-700">
           <h2 className="text-2xl font-semibold mb-4 text-white">
-            ✏️ Edit Car Details
+             Edit Car Details
           </h2>
 
           <form
@@ -291,11 +291,11 @@ const MyListings = () => {
                 onClick={async () => {
                   try {
                     await API.delete(`/car/${deleteId}`);
-                    toast.success("Car Deleted Successfully ❌");
+                    toast.success("Car Deleted Successfully ");
                     setDeleteId(null);
                     getMyCars();
                   } catch (err) {
-                    toast.error("Delete Failed ❌");
+                    toast.error("Delete Failed ");
                   }
                 }}
                 className="bg-red-600 px-4 py-2 rounded"

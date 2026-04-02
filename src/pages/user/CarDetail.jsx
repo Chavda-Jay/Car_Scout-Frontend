@@ -6,6 +6,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/thumbs";
 import { Navigation, Thumbs } from "swiper/modules";
+import { toast } from "react-toastify";
 
 const CarDetails = () => {
   const { id } = useParams();
@@ -20,6 +21,7 @@ const CarDetails = () => {
   const getCarDetails = async () => {
     try {
       const res = await API.get(`/car/${id}`);
+      // 🔹 Make sure sellerId is populated
       setCar(res.data.data || res.data);
       setLoading(false);
     } catch (err) {
@@ -33,53 +35,45 @@ const CarDetails = () => {
     window.scrollTo(0, 0);
   }, [id]);
 
+const handleSubmitOffer = async () => {
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const buyerId = user._id;
 
-  const handleSubmitOffer = async () => {
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const sellerId = car?.sellerId?._id;
+  const carId = car._id;
 
-    console.log("USER:", user);
+  if (!buyerId) {
+    toast.error("Login required ❌");
+    return;
+  }
 
-    const buyerId = user._id;
-    const sellerId = car.sellerId;
-    const carId = car._id;
+  if (!sellerId) {
+    toast.error("Seller not found for this car ❌");
+    return;
+  }
 
-    if (!buyerId) {
-      alert("Login required");
-      return;
-    }
+  if (!offerPrice || Number(offerPrice) <= 0) {
+    toast.warning("Enter valid price ⚠️");
+    return;
+  }
 
-    if (!offerPrice || Number(offerPrice) <= 0) {
-      alert("Enter valid price");
-      return;
-    }
-
-    console.log("SENDING DATA:", {
+  try {
+    const res = await API.post("/offer", {
       buyerId,
       sellerId,
       carId,
-      offerPrice,
+      offerPrice: Number(offerPrice),
     });
 
-    try {
-      const res = await API.post("/offer", {
-        buyerId,
-        sellerId,
-        carId,
-        offerPrice: Number(offerPrice),
-      });
+    toast.success(res.data.message || "Offer Sent ✅");
+    setOfferPrice("");
+    setShowModal(false);
 
-      setSuccessMsg(res.data.message || "Offer Sent ✅");
-      setOfferPrice("");
-
-      setTimeout(() => {
-        setShowModal(false);
-        setSuccessMsg("");
-      }, 2000);
-    } catch (err) {
-      console.log("ERROR:", err);
-      alert("Offer Failed ❌");
-    }
-  };
+  } catch (err) {
+    console.log("ERROR:", err);
+    toast.error("Offer Failed ❌");
+  }
+};
 
   if (loading)
     return <p className="text-white text-center mt-10">Loading...</p>;
@@ -89,91 +83,70 @@ const CarDetails = () => {
 
   return (
     <div className="bg-gray-900 min-h-screen text-white p-6">
-      {/* 🔥 MAIN GRID */}
       <div className="grid md:grid-cols-2 gap-10">
-
-        {/* 🔥 IMAGE SECTION */}
         <div>
-  {/* 🔥 MAIN BIG IMAGE SLIDER */}
-  <Swiper
-    spaceBetween={10}
-    navigation={true}
-    thumbs={{ swiper: thumbsSwiper }}
-    modules={[Navigation, Thumbs]}
-    className="mb-4 rounded-xl overflow-hidden"
-  >
-    {car.images?.map((img, index) => (
-      <SwiperSlide key={index}>
-        <img
-          src={img}
-          alt="car"
-          className="w-full h-96 object-cover"
-        />
-      </SwiperSlide>
-    ))}
-  </Swiper>
-  
+          <Swiper
+            spaceBetween={10}
+            navigation={true}
+            thumbs={{ swiper: thumbsSwiper }}
+            modules={[Navigation, Thumbs]}
+            className="mb-4 rounded-xl overflow-hidden"
+          >
+            {car.images?.map((img, index) => (
+              <SwiperSlide key={index}>
+                <img src={img} alt="car" className="w-full h-96 object-cover" />
+              </SwiperSlide>
+            ))}
+          </Swiper>
 
-  {/* 🔥 THUMBNAIL SLIDER */}
-  <Swiper
-    onSwiper={setThumbsSwiper}
-    spaceBetween={10}
-    slidesPerView={4}
-    freeMode={true}
-    watchSlidesProgress={true}
-    modules={[Thumbs]}
-  >
-    {car.images?.map((img, index) => (
-      <SwiperSlide key={index}>
-        <img
-          src={img}
-          alt="thumb"
-          className="w-full h-24 object-cover rounded-lg cursor-pointer"
-        />
-      </SwiperSlide>
-    ))}
-  </Swiper>
-</div>
+          <Swiper
+            onSwiper={setThumbsSwiper}
+            spaceBetween={10}
+            slidesPerView={4}
+            freeMode={true}
+            watchSlidesProgress={true}
+            modules={[Thumbs]}
+          >
+            {car.images?.map((img, index) => (
+              <SwiperSlide key={index}>
+                <img
+                  src={img}
+                  alt="thumb"
+                  className="w-full h-24 object-cover rounded-lg cursor-pointer"
+                />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
 
-        {/* 🔥 DETAILS */}
         <div className="bg-gray-800 p-6 rounded-xl shadow-lg">
           <h1 className="text-3xl font-bold mb-2">
             {car.brand} {car.model}
           </h1>
-
           <p className="text-gray-400">
             {car.year} • {car.fuelType} • {car.location}
           </p>
+          <p className="text-green-400 text-3xl font-bold mt-4">₹ {car.price}</p>
 
-          {/* 🔥 PRICE */}
-          <p className="text-green-400 text-3xl font-bold mt-4">
-            ₹ {car.price}
-          </p>
-
-          {/* 🔥 INFO GRID */}
           <div className="mt-6 grid grid-cols-2 gap-4">
             <div className="bg-gray-700 p-3 rounded">
               <p className="text-sm text-gray-400">Brand</p>
               <p className="font-bold">{car.brand}</p>
             </div>
-
             <div className="bg-gray-700 p-3 rounded">
               <p className="text-sm text-gray-400">Model</p>
               <p className="font-bold">{car.model}</p>
             </div>
-
             <div className="bg-gray-700 p-3 rounded">
               <p className="text-sm text-gray-400">Year</p>
               <p className="font-bold">{car.year}</p>
             </div>
-
             <div className="bg-gray-700 p-3 rounded">
               <p className="text-sm text-gray-400">Fuel</p>
               <p className="font-bold">{car.fuelType}</p>
             </div>
           </div>
 
-          {/* 🔥 ACTION BUTTONS */}
           <div className="mt-8 space-y-3">
             <button
               onClick={() => setShowModal(true)}
@@ -181,7 +154,6 @@ const CarDetails = () => {
             >
               Make Offer 💰
             </button>
-
             <button className="w-full bg-green-600 py-3 rounded-lg hover:bg-green-700 font-semibold">
               Book Test Drive 🚗
             </button>
@@ -189,15 +161,11 @@ const CarDetails = () => {
         </div>
       </div>
 
-      {/* 🔥 DESCRIPTION */}
       <div className="mt-10 bg-gray-800 p-6 rounded-xl">
         <h2 className="text-xl font-bold mb-2">Description</h2>
-        <p className="text-gray-300">
-          {car.description || "No description available"}
-        </p>
+        <p className="text-gray-300">{car.description || "No description available"}</p>
       </div>
 
-      {/* 🔥 OFFER MODAL */}
       {showModal && (
         <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50">
           <div className="bg-gray-800 p-6 rounded-xl w-96">
@@ -216,13 +184,9 @@ const CarDetails = () => {
                 />
 
                 <div className="flex gap-3">
-                  <button
-                    onClick={handleSubmitOffer}
-                    className="bg-blue-600 w-full py-2 rounded"
-                  >
+                  <button onClick={handleSubmitOffer} className="bg-blue-600 w-full py-2 rounded">
                     Submit
                   </button>
-
                   <button
                     onClick={() => setShowModal(false)}
                     className="bg-red-500 w-full py-2 rounded"
