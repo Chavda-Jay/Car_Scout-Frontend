@@ -27,6 +27,8 @@ import MyListings from "../pages/seller/MyListings";
 import SellerOffers from "../pages/seller/SellerOffers";
 
 
+
+
 const router = createBrowserRouter([
 
   // AUTH
@@ -44,8 +46,7 @@ const router = createBrowserRouter([
       { path: "cars", element: <CarList /> },
       { path: "offers", element:<MyOffers/>},
       { path: "car/:id", element: <CarDetail/>},
-      
-    ]
+     ]
   },
 
   // ADMIN PANEL

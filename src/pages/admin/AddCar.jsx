@@ -80,7 +80,7 @@ const AddCar = () => {
         },
       });
 
-      toast.success("Car Added Successfully 🚗");
+      toast.success("Car Added Successfully");
 
       // 🔄 Reset
       setCar({
@@ -106,7 +106,7 @@ const AddCar = () => {
       <div className="w-full max-w-3xl bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-2xl shadow-xl text-white">
         
         <h2 className="text-3xl font-bold mb-8 text-center bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
-          🚗 Add New Car
+           Add New Car
         </h2>
 
         <form

@@ -51,12 +51,22 @@ const MyListings = () => {
       const formData = new FormData();
 
       // 🔹 append all fields
+      // for (let key in editCar) {
+      //   if (key !== "newImages") {
+      //     formData.append(key, editCar[key]);
+      //   }
+      // }
+      
       for (let key in editCar) {
-        if (key !== "newImages") {
+        if (
+          key !== "newImages" &&
+          key !== "images" &&
+          key !== "_id" &&
+          key !== "sellerId" // 🔥 IMPORTANT FIX
+        ) {
           formData.append(key, editCar[key]);
         }
       }
-
       // 🔹 append images
       if (editCar.newImages) {
         for (let i = 0; i < editCar.newImages.length; i++) {
@@ -66,7 +76,7 @@ const MyListings = () => {
 
       await API.put(`/car/${editCar._id}`, formData);
 
-      toast.success("Car Updated with Images ");
+      toast.success("Car Updated with images");
 
       setEditCar(null);
       getMyCars();
@@ -123,7 +133,7 @@ const MyListings = () => {
       {editCar && (
         <div className="bg-gray-900/80 backdrop-blur-md p-6 mt-6 rounded-xl shadow-lg border border-gray-700">
           <h2 className="text-2xl font-semibold mb-4 text-white">
-             Edit Car Details
+            Edit Car Details
           </h2>
 
           <form
@@ -277,7 +287,7 @@ const MyListings = () => {
           </form>
         </div>
       )}
-     
+
       {deleteId && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center">
           <div className="bg-gray-900 p-6 rounded-lg text-white w-80 text-center">
