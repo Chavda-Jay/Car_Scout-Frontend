@@ -13,10 +13,11 @@ const CarDetails = () => {
 
   const [car, setCar] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [offerPrice, setOfferPrice] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [loading, setLoading] = useState(true);
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
+  const [price, setPrice] = useState("");
+  const [message, setMessage] = useState("");
 
   const getCarDetails = async () => {
     try {
@@ -35,45 +36,46 @@ const CarDetails = () => {
     window.scrollTo(0, 0);
   }, [id]);
 
-const handleSubmitOffer = async () => {
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
-  const buyerId = user._id;
+  const handleSubmitOffer = async () => {
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-  const sellerId = car?.sellerId?._id;
-  const carId = car._id;
+    const buyerId = user._id;
+    const sellerId = car?.sellerId?._id;
+    const carId = car._id;
 
-  if (!buyerId) {
-    toast.error("Login required ❌");
-    return;
-  }
+    if (!buyerId) {
+      toast.error("Login required ❌");
+      return;
+    }
 
-  if (!sellerId) {
-    toast.error("Seller not found for this car ❌");
-    return;
-  }
+    if (!sellerId) {
+      toast.error("Seller not found ❌");
+      return;
+    }
 
-  if (!offerPrice || Number(offerPrice) <= 0) {
-    toast.warning("Enter valid price ⚠️");
-    return;
-  }
+    if (!price || Number(price) <= 0) {
+      toast.warning("Enter valid price ⚠️");
+      return;
+    }
 
-  try {
-    const res = await API.post("/offer", {
-      buyerId,
-      sellerId,
-      carId,
-      offerPrice: Number(offerPrice),
-    });
+    try {
+      const res = await API.post("/offer", {
+        buyerId,
+        sellerId,
+        carId,
+        offerPrice: Number(price),
+        message, //
+      });
 
-    toast.success(res.data.message || "Offer Sent ✅");
-    setOfferPrice("");
-    setShowModal(false);
+      toast.success("Offer Sent ✅");
 
-  } catch (err) {
-    console.log("ERROR:", err);
-    toast.error("Offer Failed ❌");
-  }
-};
+      setPrice("");
+      setMessage("");
+      setShowModal(false);
+    } catch (err) {
+      toast.error("Offer Failed ❌");
+    }
+  };
 
   if (loading)
     return <p className="text-white text-center mt-10">Loading...</p>;
@@ -126,7 +128,9 @@ const handleSubmitOffer = async () => {
           <p className="text-gray-400">
             {car.year} • {car.fuelType} • {car.location}
           </p>
-          <p className="text-green-400 text-3xl font-bold mt-4">₹ {car.price}</p>
+          <p className="text-green-400 text-3xl font-bold mt-4">
+            ₹ {car.price}
+          </p>
 
           <div className="mt-6 grid grid-cols-2 gap-4">
             <div className="bg-gray-700 p-3 rounded">
@@ -163,39 +167,64 @@ const handleSubmitOffer = async () => {
 
       <div className="mt-10 bg-gray-800 p-6 rounded-xl">
         <h2 className="text-xl font-bold mb-2">Description</h2>
-        <p className="text-gray-300">{car.description || "No description available"}</p>
+        <p className="text-gray-300">
+          {car.description || "No description available"}
+        </p>
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50">
-          <div className="bg-gray-800 p-6 rounded-xl w-96">
-            <h2 className="text-xl font-bold mb-4">Make Offer</h2>
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50">
+          <div className="bg-gray-900 border border-gray-700 p-6 rounded-2xl w-[400px] shadow-2xl animate-fadeIn">
+            {/* HEADER */}
+            <h2 className="text-2xl font-bold mb-1 text-center">
+              💰 Make an Offer
+            </h2>
+            <p className="text-gray-400 text-sm text-center mb-5">
+              Negotiate your best price with seller
+            </p>
 
-            {successMsg ? (
-              <p className="text-green-400">{successMsg}</p>
-            ) : (
-              <>
-                <input
-                  type="number"
-                  placeholder="Enter offer price"
-                  value={offerPrice}
-                  onChange={(e) => setOfferPrice(e.target.value)}
-                  className="w-full p-3 rounded bg-gray-700 mb-4"
-                />
+            {/* INPUT PRICE */}
+            <div className="mb-4">
+              <label className="text-sm text-gray-400">Your Offer Price</label>
+              <input
+                type="number"
+                placeholder="₹ Enter amount"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                className="w-full mt-1 p-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
 
-                <div className="flex gap-3">
-                  <button onClick={handleSubmitOffer} className="bg-blue-600 w-full py-2 rounded">
-                    Submit
-                  </button>
-                  <button
-                    onClick={() => setShowModal(false)}
-                    className="bg-red-500 w-full py-2 rounded"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </>
-            )}
+            {/* MESSAGE */}
+            <div className="mb-5">
+              <label className="text-sm text-gray-400">
+                Message (Optional)
+              </label>
+              <textarea
+                rows="3"
+                placeholder="Write something to seller..."
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                className="w-full mt-1 p-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* BUTTONS */}
+            <div className="flex gap-3">
+              <button
+                onClick={handleSubmitOffer}
+                className="w-full bg-blue-600 hover:bg-blue-700 transition py-2 rounded-lg font-semibold"
+              >
+                Submit Offer 🚀
+              </button>
+
+              <button
+                onClick={() => setShowModal(false)}
+                className="w-full bg-gray-700 hover:bg-gray-600 transition py-2 rounded-lg font-semibold"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
