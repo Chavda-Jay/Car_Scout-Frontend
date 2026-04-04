@@ -7,7 +7,6 @@ const ManageCars = () => {
   const [editCar, setEditCar] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // 🔹 GET ALL CARS
   const getCars = async () => {
     try {
       setLoading(true);
@@ -20,31 +19,27 @@ const ManageCars = () => {
     }
   };
 
-  // 🔹 DELETE CAR
   const deleteCar = async (id) => {
-  if (window.confirm("Are you sure you want to delete this car?")) {
-    try {
-      await API.delete(`/car/${id}`);
-      toast.success("Car Deleted 🗑️");
-      getCars();
-    } catch (err) {
-      console.log(err); // 👈 MUST
-      toast.error("Delete failed ❌");
+    if (window.confirm("Are you sure you want to delete this car?")) {
+      try {
+        await API.delete(`/car/${id}`);
+        toast.success("Car Deleted 🗑️");
+        getCars();
+      } catch (err) {
+        console.log(err);
+        toast.error("Delete failed ❌");
+      }
     }
-  }
-};
+  };
 
-  // 🔹 OPEN EDIT
   const handleEdit = (car) => {
     setEditCar(car);
   };
 
-  // 🔹 HANDLE CHANGE
   const handleChange = (e) => {
     setEditCar({ ...editCar, [e.target.name]: e.target.value });
   };
 
-  // 🔹 UPDATE CAR
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
@@ -62,169 +57,201 @@ const ManageCars = () => {
   }, []);
 
   return (
-    <div className="p-6 text-white">
-
-      {/* TITLE */}
-      <h2 className="text-3xl font-bold mb-6">Manage Cars 🚗</h2>
-
-      {/* LOADING */}
-      {loading ? (
-        <p className="text-gray-400">Loading cars...</p>
-      ) : (
-        <div className="overflow-x-auto rounded-xl border border-gray-700 shadow-lg">
-          <table className="min-w-full text-sm text-left">
-
-            {/* HEADER */}
-            <thead className="bg-gray-800 text-gray-300 uppercase text-xs tracking-wider">
-              <tr>
-                <th className="p-3">Brand</th>
-                <th className="p-3">Model</th>
-                <th className="p-3">Year</th>
-                <th className="p-3">Price</th>
-                <th className="p-3">Mileage</th>
-                <th className="p-3">Fuel</th>
-                <th className="p-3">Location</th>
-                <th className="p-3 text-center">Actions</th>
-              </tr>
-            </thead>
-
-            {/* BODY */}
-            <tbody className="divide-y divide-gray-700">
-              {cars.length > 0 ? (
-                cars.map((car) => (
-                  <tr key={car._id} className="hover:bg-gray-800 transition">
-
-                    <td className="p-3 font-semibold">{car.brand}</td>
-                    <td className="p-3">{car.model}</td>
-                    <td className="p-3">{car.year}</td>
-                    <td className="p-3 text-green-400 font-semibold">₹{car.price}</td>
-                    <td className="p-3">{car.mileage}</td>
-                    <td className="p-3">{car.fuelType}</td>
-                    <td className="p-3">{car.location}</td>
-
-                    <td className="p-3 flex justify-center gap-2">
-                      <button
-                        onClick={() => handleEdit(car)}
-                        className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm"
-                      >
-                        Edit
-                      </button>
-
-                      <button
-                        onClick={() => deleteCar(car._id)}
-                        className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm"
-                      >
-                        Delete
-                      </button>
-                    </td>
-
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="8" className="text-center p-5 text-gray-400">
-                    No Cars Found 🚫
-                  </td>
-                </tr>
-              )}
-            </tbody>
-
-          </table>
+    <div className="min-h-screen bg-[#0b1120] px-4 py-8 text-white sm:px-6 lg:px-10">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-8 rounded-3xl border border-white/10 bg-[#111827] p-6 shadow-[0_10px_30px_rgba(0,0,0,0.20)]">
+          <p className="text-sm uppercase tracking-[0.2em] text-cyan-300">
+            Admin Panel
+          </p>
+          <h2 className="mt-2 text-3xl font-bold">Manage Cars</h2>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
+            View, update, and manage all listed cars through a clean and
+            professional admin workspace.
+          </p>
         </div>
-      )}
 
-      {/* 🔥 EDIT MODAL */}
-      {editCar && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
-          <div className="bg-gray-900 p-6 rounded-xl w-full max-w-lg shadow-xl">
+        {loading ? (
+          <div className="rounded-3xl border border-white/10 bg-[#111827] p-8 shadow-[0_10px_30px_rgba(0,0,0,0.20)]">
+            <p className="text-slate-400">Loading cars...</p>
+          </div>
+        ) : (
+          <div className="overflow-hidden rounded-3xl border border-white/10 bg-[#111827] shadow-[0_10px_30px_rgba(0,0,0,0.20)]">
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-left text-sm">
+                <thead className="border-b border-white/10 bg-[#0f172a] text-[11px] uppercase tracking-[0.18em] text-slate-400">
+                  <tr>
+                    <th className="px-5 py-4">Brand</th>
+                    <th className="px-5 py-4">Model</th>
+                    <th className="px-5 py-4">Year</th>
+                    <th className="px-5 py-4">Price</th>
+                    <th className="px-5 py-4">Mileage</th>
+                    <th className="px-5 py-4">Fuel</th>
+                    <th className="px-5 py-4">Location</th>
+                    <th className="px-5 py-4 text-center">Actions</th>
+                  </tr>
+                </thead>
 
-            <h3 className="text-xl font-bold mb-4">Edit Car ✏️</h3>
+                <tbody className="divide-y divide-white/10">
+                  {cars.length > 0 ? (
+                    cars.map((car) => (
+                      <tr
+                        key={car._id}
+                        className="transition hover:bg-white/5"
+                      >
+                        <td className="px-5 py-4 font-semibold text-white">
+                          {car.brand}
+                        </td>
+                        <td className="px-5 py-4 text-slate-300">{car.model}</td>
+                        <td className="px-5 py-4 text-slate-300">{car.year}</td>
+                        <td className="px-5 py-4 font-semibold text-emerald-300">
+                          ₹{Number(car.price || 0).toLocaleString("en-IN")}
+                        </td>
+                        <td className="px-5 py-4 text-slate-300">
+                          {car.mileage}
+                        </td>
+                        <td className="px-5 py-4 text-slate-300">
+                          {car.fuelType}
+                        </td>
+                        <td className="px-5 py-4 text-slate-300">
+                          {car.location}
+                        </td>
+                        <td className="px-5 py-4">
+                          <div className="flex justify-center gap-2">
+                            <button
+                              onClick={() => handleEdit(car)}
+                              className="rounded-xl bg-cyan-500 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-cyan-400"
+                            >
+                              Edit
+                            </button>
 
-            <form onSubmit={handleUpdate} className="space-y-3">
+                            <button
+                              onClick={() => deleteCar(car._id)}
+                              className="rounded-xl bg-red-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-600"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan="8"
+                        className="px-5 py-10 text-center text-slate-400"
+                      >
+                        No Cars Found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
-              <input
-                name="brand"
-                value={editCar.brand}
-                onChange={handleChange}
-                placeholder="Brand"
-                className="w-full p-2 rounded bg-gray-800 outline-none"
-              />
-
-              <input
-                name="model"
-                value={editCar.model}
-                onChange={handleChange}
-                placeholder="Model"
-                className="w-full p-2 rounded bg-gray-800 outline-none"
-              />
-
-              <input
-                name="year"
-                value={editCar.year}
-                onChange={handleChange}
-                placeholder="Year"
-                className="w-full p-2 rounded bg-gray-800 outline-none"
-              />
-
-              <input
-                name="price"
-                value={editCar.price}
-                onChange={handleChange}
-                placeholder="Price"
-                className="w-full p-2 rounded bg-gray-800 outline-none"
-              />
-
-              <input
-                name="mileage"
-                value={editCar.mileage}
-                onChange={handleChange}
-                placeholder="Mileage"
-                className="w-full p-2 rounded bg-gray-800 outline-none"
-              />
-
-              <input
-                name="fuelType"
-                value={editCar.fuelType}
-                onChange={handleChange}
-                placeholder="Fuel Type"
-                className="w-full p-2 rounded bg-gray-800 outline-none"
-              />
-
-              <input
-                name="location"
-                value={editCar.location}
-                onChange={handleChange}
-                placeholder="Location"
-                className="w-full p-2 rounded bg-gray-800 outline-none"
-              />
-
-              <textarea
-                name="description"
-                value={editCar.description}
-                onChange={handleChange}
-                placeholder="Description"
-                className="w-full p-2 rounded bg-gray-800 outline-none"
-              />
-
-              <div className="flex justify-between mt-4">
-                <button className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded">
-                  Update
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setEditCar(null)}
-                  className="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded"
-                >
-                  Cancel
-                </button>
+        {editCar && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
+            <div className="w-full max-w-2xl rounded-3xl border border-white/10 bg-[#111827] p-6 shadow-2xl">
+              <div className="mb-6">
+                <p className="text-sm uppercase tracking-[0.2em] text-cyan-300">
+                  Edit Listing
+                </p>
+                <h3 className="mt-2 text-2xl font-bold text-white">
+                  Update Car Details
+                </h3>
               </div>
 
-            </form>
-          </div>
-        </div>
-      )}
+              <form
+                onSubmit={handleUpdate}
+                className="grid grid-cols-1 gap-4 md:grid-cols-2"
+              >
+                <input
+                  name="brand"
+                  value={editCar.brand}
+                  onChange={handleChange}
+                  placeholder="Brand"
+                  className="rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-cyan-500/40"
+                />
 
+                <input
+                  name="model"
+                  value={editCar.model}
+                  onChange={handleChange}
+                  placeholder="Model"
+                  className="rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-cyan-500/40"
+                />
+
+                <input
+                  name="year"
+                  value={editCar.year}
+                  onChange={handleChange}
+                  placeholder="Year"
+                  className="rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-cyan-500/40"
+                />
+
+                <input
+                  name="price"
+                  value={editCar.price}
+                  onChange={handleChange}
+                  placeholder="Price"
+                  className="rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-cyan-500/40"
+                />
+
+                <input
+                  name="mileage"
+                  value={editCar.mileage}
+                  onChange={handleChange}
+                  placeholder="Mileage"
+                  className="rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-cyan-500/40"
+                />
+
+                <input
+                  name="fuelType"
+                  value={editCar.fuelType}
+                  onChange={handleChange}
+                  placeholder="Fuel Type"
+                  className="rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-cyan-500/40"
+                />
+
+                <input
+                  name="location"
+                  value={editCar.location}
+                  onChange={handleChange}
+                  placeholder="Location"
+                  className="rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-cyan-500/40 md:col-span-2"
+                />
+
+                <textarea
+                  name="description"
+                  value={editCar.description}
+                  onChange={handleChange}
+                  placeholder="Description"
+                  rows="5"
+                  className="rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-cyan-500/40 md:col-span-2"
+                />
+
+                <div className="mt-2 flex gap-3 md:col-span-2">
+                  <button
+                    type="submit"
+                    className="rounded-xl bg-emerald-500 px-6 py-3 font-semibold text-white transition hover:bg-emerald-400"
+                  >
+                    Update
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setEditCar(null)}
+                    className="rounded-xl bg-white/10 px-6 py-3 font-semibold text-white transition hover:bg-white/15"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

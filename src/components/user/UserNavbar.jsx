@@ -122,8 +122,7 @@
 
 
 
-
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 export const UserNavbar = () => {
@@ -131,12 +130,24 @@ export const UserNavbar = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const profileRef = useRef(null);
 
   const userName = localStorage.getItem("firstName") || "User";
   const initials = useMemo(
     () => userName.slice(0, 2).toUpperCase(),
-    [userName],
+    [userName]
   );
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setIsProfileOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -155,18 +166,20 @@ export const UserNavbar = () => {
   };
 
   const navClass = (path) =>
-    `rounded-full px-4 py-2 text-sm font-medium transition ${
+    `rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 ${
       isActive(path)
-        ? "bg-cyan-400 text-slate-950"
+        ? "bg-cyan-400 text-slate-950 shadow-lg shadow-cyan-500/20"
         : "text-slate-300 hover:bg-white/5 hover:text-white"
     }`;
 
   return (
     <>
-      <nav className="sticky top-0 z-50 border-b border-white/10 bg-[#0b1120]/90 text-white backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-          <Link to="/user" className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-400 shadow-lg shadow-cyan-500/20">
+      <nav className="sticky top-0 z-50 border-b border-white/10 bg-[#0b1120]/85 text-white backdrop-blur-2xl">
+        <div className="relative mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+          <div className="pointer-events-none absolute left-10 top-1/2 h-20 w-20 -translate-y-1/2 rounded-full bg-cyan-500/10 blur-3xl" />
+
+          <Link to="/user" className="relative flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-br from-cyan-300 to-cyan-500 shadow-[0_10px_30px_rgba(34,211,238,0.25)] transition duration-300 hover:scale-105">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 64 64"
@@ -188,7 +201,7 @@ export const UserNavbar = () => {
                 <circle cx="44" cy="47" r="4" fill="currentColor" />
                 <path
                   d="M22 30H42"
-                  stroke="#22d3ee"
+                  stroke="#ecfeff"
                   strokeWidth="2"
                   strokeLinecap="round"
                 />
@@ -205,7 +218,7 @@ export const UserNavbar = () => {
             </div>
           </Link>
 
-          <div className="hidden items-center gap-2 rounded-full border border-white/10 bg-white/5 p-1 md:flex">
+          <div className="hidden items-center gap-2 rounded-full border border-white/10 bg-white/5 p-1 shadow-[0_8px_24px_rgba(0,0,0,0.18)] md:flex">
             <Link to="/user" className={navClass("/user")}>
               Home
             </Link>
@@ -218,19 +231,16 @@ export const UserNavbar = () => {
           </div>
 
           <div className="hidden items-center gap-3 md:flex">
-            {/* <button
-              onClick={() => navigate("/user/cars")}
-              className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/10 hover:text-white"
-            >
-              Explore Cars
-            </button> */}
+            <div className="rounded-full border border-emerald-400/15 bg-emerald-400/10 px-3 py-2 text-xs font-medium text-emerald-300">
+              Trusted Marketplace
+            </div>
 
-            <div className="relative">
+            <div className="relative" ref={profileRef}>
               <button
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-2 py-2 pr-4 transition hover:bg-white/10"
+                className="flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-2 py-2 pr-4 transition duration-300 hover:bg-white/10"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cyan-400 text-sm font-bold text-slate-950">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cyan-400 text-sm font-bold text-slate-950 shadow-lg shadow-cyan-500/20">
                   {initials}
                 </div>
 
@@ -241,7 +251,12 @@ export const UserNavbar = () => {
               </button>
 
               {isProfileOpen && (
-                <div className="absolute right-0 mt-3 w-56 overflow-hidden rounded-2xl border border-white/10 bg-[#111827] shadow-2xl">
+                <div className="absolute right-0 mt-3 w-56 overflow-hidden rounded-2xl border border-white/10 bg-[#111827]/95 shadow-2xl backdrop-blur-xl">
+                  <div className="border-b border-white/10 px-4 py-3">
+                    <p className="text-sm font-semibold text-white">{userName}</p>
+                    <p className="text-xs text-slate-400">carscout user panel</p>
+                  </div>
+
                   <Link
                     to="/user/profile"
                     onClick={() => setIsProfileOpen(false)}
@@ -271,56 +286,58 @@ export const UserNavbar = () => {
 
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 md:hidden"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 transition hover:bg-white/10 md:hidden"
           >
             <span className="text-lg">{isOpen ? "✕" : "☰"}</span>
           </button>
         </div>
 
-        {isOpen && (
-          <div className="border-t border-white/10 bg-[#0f172a] md:hidden">
-            <div className="space-y-2 px-4 py-4">
-              <Link
-                to="/user"
-                onClick={() => setIsOpen(false)}
-                className="block rounded-xl px-4 py-3 text-slate-200 transition hover:bg-white/5"
-              >
-                Home
-              </Link>
+        <div
+          className={`overflow-hidden border-t border-white/10 bg-[#0f172a]/95 backdrop-blur-xl transition-all duration-300 md:hidden ${
+            isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+          }`}
+        >
+          <div className="space-y-2 px-4 py-4">
+            <Link
+              to="/user"
+              onClick={() => setIsOpen(false)}
+              className="block rounded-xl px-4 py-3 text-slate-200 transition hover:bg-white/5"
+            >
+              Home
+            </Link>
 
-              <Link
-                to="/user/cars"
-                onClick={() => setIsOpen(false)}
-                className="block rounded-xl px-4 py-3 text-slate-200 transition hover:bg-white/5"
-              >
-                Cars
-              </Link>
+            <Link
+              to="/user/cars"
+              onClick={() => setIsOpen(false)}
+              className="block rounded-xl px-4 py-3 text-slate-200 transition hover:bg-white/5"
+            >
+              Cars
+            </Link>
 
-              <Link
-                to="/user/offers"
-                onClick={() => setIsOpen(false)}
-                className="block rounded-xl px-4 py-3 text-slate-200 transition hover:bg-white/5"
-              >
-                My Offers
-              </Link>
+            <Link
+              to="/user/offers"
+              onClick={() => setIsOpen(false)}
+              className="block rounded-xl px-4 py-3 text-slate-200 transition hover:bg-white/5"
+            >
+              My Offers
+            </Link>
 
-              <Link
-                to="/user/profile"
-                onClick={() => setIsOpen(false)}
-                className="block rounded-xl px-4 py-3 text-slate-200 transition hover:bg-white/5"
-              >
-                Profile
-              </Link>
+            <Link
+              to="/user/profile"
+              onClick={() => setIsOpen(false)}
+              className="block rounded-xl px-4 py-3 text-slate-200 transition hover:bg-white/5"
+            >
+              Profile
+            </Link>
 
-              <button
-                onClick={handleLogout}
-                className="block w-full rounded-xl px-4 py-3 text-left text-red-400 transition hover:bg-red-500 hover:text-white"
-              >
-                Logout
-              </button>
-            </div>
+            <button
+              onClick={handleLogout}
+              className="block w-full rounded-xl px-4 py-3 text-left text-red-400 transition hover:bg-red-500 hover:text-white"
+            >
+              Logout
+            </button>
           </div>
-        )}
+        </div>
       </nav>
 
       <div className="min-h-[calc(100vh-80px)] bg-[#0b1120]">

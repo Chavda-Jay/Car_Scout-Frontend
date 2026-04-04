@@ -25,7 +25,6 @@ const SellerOffers = () => {
     getOffers();
   }, []);
 
-  // ✅ ACCEPT / REJECT
   const handleStatusChange = async (id, status) => {
     try {
       await API.put(`/offer/${id}`, { status });
@@ -33,14 +32,13 @@ const SellerOffers = () => {
       toast.success(`Offer ${status} ✅`);
 
       setOffers((prev) =>
-        prev.map((o) => (o._id === id ? { ...o, status } : o)),
+        prev.map((o) => (o._id === id ? { ...o, status } : o))
       );
     } catch {
       toast.error("Update failed ❌");
     }
   };
 
-  // ✅ COUNTER OFFER
   const handleCounter = async (id) => {
     if (!counter || Number(counter) <= 0) {
       return toast.warning("Enter valid price ⚠️");
@@ -52,7 +50,6 @@ const SellerOffers = () => {
       });
 
       toast.success("Counter sent 💰");
-
       setCounter("");
       setSelectedOfferId(null);
       getOffers();
@@ -62,105 +59,161 @@ const SellerOffers = () => {
   };
 
   if (loading) {
-    return <p className="text-white p-6">Loading offers...</p>;
+    return (
+      <div className="min-h-screen bg-[#0b1120] px-4 py-8 text-white sm:px-6 lg:px-10">
+        <p className="text-slate-400">Loading offers...</p>
+      </div>
+    );
   }
 
   return (
-    <div className="bg-gray-900 min-h-screen text-white p-6">
-      <h1 className="text-xl font-semibold mb-5">📩 Offers</h1>
+    <div className="min-h-screen bg-[#0b1120] px-4 py-8 text-white sm:px-6 lg:px-10">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-8 rounded-3xl border border-white/10 bg-[#111827] p-6 shadow-[0_10px_30px_rgba(0,0,0,0.20)]">
+          <p className="text-sm uppercase tracking-[0.2em] text-cyan-300">
+            Seller Panel
+          </p>
+          <h1 className="mt-2 text-3xl font-bold">Buyer Offers</h1>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
+            Review incoming offers, send counter prices, and manage buyer
+            decisions through a clean professional workspace.
+          </p>
+        </div>
 
-      {offers.length === 0 ? (
-        <p className="text-gray-400">No offers yet 😢</p>
-      ) : (
-        offers.map((offer) => (
-          <div
-            key={offer._id}
-            className="bg-gray-800 p-4 mb-3 rounded-xl border border-gray-700"
-          >
-            <p className="text-sm">
-              <b>
-                {offer.carId?.brand} {offer.carId?.model}
-              </b>
+        {offers.length === 0 ? (
+          <div className="rounded-3xl border border-white/10 bg-[#111827] p-10 text-center shadow-[0_10px_30px_rgba(0,0,0,0.20)]">
+            <h3 className="text-2xl font-semibold text-white">No offers yet</h3>
+            <p className="mt-3 text-slate-400">
+              Buyer offers will appear here once someone places an offer on your
+              car.
             </p>
-
-            <p className="text-xs text-gray-400">
-              Buyer: {offer.buyerId?.firstName}
-            </p>
-
-            <p className="mt-1 text-sm">₹ {offer.offerPrice}</p>
-
-            {offer.counterOffer && (
-              <p className="text-yellow-400 text-xs mt-1">
-                Counter: ₹ {offer.counterOffer}
-              </p>
-            )}
-
-            <p className="text-xs mt-1">
-              Status:{" "}
-              <span
-                className={
-                  offer.status === "pending"
-                    ? "text-yellow-400"
-                    : offer.status === "accepted"
-                      ? "text-green-400"
-                      : "text-red-400"
-                }
-              >
-                {offer.status}
-              </span>
-            </p>
-
-            {/* ✅ SMALL BUTTONS */}
-            {offer.status === "pending" && (
-              <div className="mt-3 flex flex-wrap gap-2 items-center">
-                <button
-                  onClick={() => handleStatusChange(offer._id, "accepted")}
-                  className="bg-green-600 px-3 py-1 text-xs rounded hover:bg-green-700"
-                >
-                  Accept
-                </button>
-
-                <button
-                  onClick={() => handleStatusChange(offer._id, "rejected")}
-                  className="bg-red-600 px-3 py-1 text-xs rounded hover:bg-red-700"
-                >
-                  Reject
-                </button>
-
-                <button
-                  onClick={() =>
-                    setSelectedOfferId(
-                      selectedOfferId === offer._id ? null : offer._id,
-                    )
-                  }
-                  className="bg-blue-600 px-3 py-1 text-xs rounded hover:bg-blue-700"
-                >
-                  Counter
-                </button>
-              </div>
-            )}
-
-            {/* 🔥 SMALL COUNTER INPUT */}
-            {selectedOfferId === offer._id && (
-              <div className="mt-2 flex gap-2">
-                <input
-                  type="number"
-                  placeholder="Enter counter price"
-                  value={counter}
-                  onChange={(e) => setCounter(e.target.value)}
-                  className="px-4 py-2 text-sm rounded-lg bg-gray-700 border border-gray-600 w-40 focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                />
-                <button
-                  onClick={() => handleCounter(offer._id)}
-                  className="bg-yellow-500 px-3 py-1 text-xs rounded hover:bg-yellow-600"
-                >
-                  Send
-                </button>
-              </div>
-            )}
           </div>
-        ))
-      )}
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {offers.map((offer) => {
+              const statusClass =
+                offer.status === "pending"
+                  ? "bg-amber-400/10 text-amber-300 border-amber-400/20"
+                  : offer.status === "accepted"
+                  ? "bg-emerald-400/10 text-emerald-300 border-emerald-400/20"
+                  : "bg-red-400/10 text-red-300 border-red-400/20";
+
+              return (
+                <div
+                  key={offer._id}
+                  className="rounded-3xl border border-white/10 bg-[#111827] p-5 shadow-[0_10px_30px_rgba(0,0,0,0.22)]"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-sm uppercase tracking-[0.18em] text-slate-500">
+                        Car
+                      </p>
+                      <h3 className="mt-1 text-xl font-bold text-white">
+                        {offer.carId?.brand} {offer.carId?.model}
+                      </h3>
+                    </div>
+
+                    <div
+                      className={`rounded-full border px-3 py-1 text-xs font-medium capitalize ${statusClass}`}
+                    >
+                      {offer.status}
+                    </div>
+                  </div>
+
+                  <div className="mt-5 grid gap-3">
+                    <div className="rounded-2xl bg-[#0f172a] px-4 py-3">
+                      <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">
+                        Buyer
+                      </p>
+                      <p className="mt-1 text-sm font-medium text-slate-200">
+                        {offer.buyerId?.firstName || "Unknown Buyer"}
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="rounded-2xl bg-[#0f172a] px-4 py-3">
+                        <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">
+                          Offer Price
+                        </p>
+                        <p className="mt-1 text-sm font-semibold text-cyan-300">
+                          ₹ {Number(offer.offerPrice || 0).toLocaleString("en-IN")}
+                        </p>
+                      </div>
+
+                      <div className="rounded-2xl bg-[#0f172a] px-4 py-3">
+                        <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">
+                          Counter
+                        </p>
+                        <p className="mt-1 text-sm font-semibold text-amber-300">
+                          {offer.counterOffer
+                            ? `₹ ${Number(offer.counterOffer).toLocaleString("en-IN")}`
+                            : "Not Sent"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {offer.status === "pending" && (
+                    <div className="mt-5">
+                      <div className="flex flex-wrap gap-3">
+                        <button
+                          onClick={() => handleStatusChange(offer._id, "accepted")}
+                          className="rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-400"
+                        >
+                          Accept
+                        </button>
+
+                        <button
+                          onClick={() => handleStatusChange(offer._id, "rejected")}
+                          className="rounded-xl bg-red-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-600"
+                        >
+                          Reject
+                        </button>
+
+                        <button
+                          onClick={() =>
+                            setSelectedOfferId(
+                              selectedOfferId === offer._id ? null : offer._id
+                            )
+                          }
+                          className="rounded-xl bg-cyan-500 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400"
+                        >
+                          Counter Offer
+                        </button>
+                      </div>
+
+                      {selectedOfferId === offer._id && (
+                        <div className="mt-4 rounded-2xl border border-white/10 bg-[#0f172a] p-4">
+                          <label className="text-sm text-slate-400">
+                            Enter counter price
+                          </label>
+
+                          <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+                            <input
+                              type="number"
+                              placeholder="Enter counter price"
+                              value={counter}
+                              onChange={(e) => setCounter(e.target.value)}
+                              className="w-full rounded-xl border border-white/10 bg-[#111827] px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-400/30"
+                            />
+
+                            <button
+                              onClick={() => handleCounter(offer._id)}
+                              className="rounded-xl bg-amber-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-amber-300"
+                            >
+                              Send
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

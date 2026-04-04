@@ -6,119 +6,56 @@ import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 
 const Login = () => {
-  const navigate = useNavigate(); //all hooks will be declare at component level...
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
 
-//   const submitHandler = async (data) => {
-//   try {
-//     const res = await axios.post("http://localhost:3800/user/login", data);
+  const submitHandler = async (data) => {
+    try {
+      const res = await axios.post("http://localhost:3800/user/login", data);
 
-//     console.log("Full Response:", res);
+      console.log("Full Response:", res);
 
-//     if (!res || !res.data) {
-//       toast.error("No response from server ❌");
-//       return;
-//     }
+      if (!res || !res.data || !res.data.user) {
+        toast.error("User data missing ❌");
+        return;
+      }
 
-//     const userData = res.data.user || res.data.data || res.data;
+      const userData = res.data.user;
 
-//     if (!userData) {
-//       toast.error("User data missing ❌");
-//       return;
-//     }
+      const finalUser = {
+        ...userData,
+        _id: userData._id || userData.id,
+      };
 
-//     // 🔥 FIX (IMPORTANT)
-//     const finalUser = {
-//       ...userData,
-//       _id: userData._id || userData.id
-//     };
+      console.log("Final User:", finalUser);
 
-//     console.log("Final User:", finalUser);
+      localStorage.setItem("user", JSON.stringify(finalUser));
+      localStorage.setItem("role", finalUser.role);
+      localStorage.setItem("token", res.data.token);
 
-//     localStorage.setItem("user", JSON.stringify(finalUser));
-//     localStorage.setItem("role", finalUser.role);
+      toast.success("Login Success ✅");
 
-//     toast.success("Login Success ✅");
+      if (finalUser.role === "user" || finalUser.role === "USER") {
+        navigate("/user");
+      } else if (finalUser.role === "admin" || finalUser.role === "ADMIN") {
+        navigate("/admin");
+      } else if (finalUser.role === "seller" || finalUser.role === "SELLER") {
+        navigate("/seller");
+      } else {
+        toast.error("Invalid Role ❌");
+      }
+    } catch (err) {
+      console.log("LOGIN ERROR:", err);
 
-//     // 🔁 Navigation
-//     if (finalUser.role === "user" || finalUser.role === "USER") {
-//       navigate("/user");
-//     } else if (finalUser.role === "admin" || finalUser.role === "ADMIN") {
-//       navigate("/admin");
-//     } else if (finalUser.role === "seller" || finalUser.role === "selle") {
-//       navigate("/seller");
-//     } else {
-//       toast.error("Invalid Role ❌");
-//     }
+      const message = err.response?.data?.message || err.message || "Login Failed ❌";
 
-//   } catch (err) {
-//     console.log("LOGIN ERROR:", err);
-
-//     // 🔥 SAFE ERROR HANDLING
-//     const message =
-//       err.response?.data?.message ||
-//       err.message ||
-//       "Login Failed ❌";
-
-//     toast.error(message);
-//   }
-// };
-
-const submitHandler = async (data) => {
-  try {
-    const res = await axios.post("http://localhost:3800/user/login", data);
-
-    console.log("Full Response:", res);
-
-    if (!res || !res.data || !res.data.user) {
-      toast.error("User data missing ❌");
-      return;
+      toast.error(message);
     }
-
-    const userData = res.data.user;
-
-    // ✅ FINAL USER
-    const finalUser = {
-      ...userData,
-      _id: userData._id || userData.id,
-    };
-
-    console.log("Final User:", finalUser);
-
-    // ✅ SAVE
-    localStorage.setItem("user", JSON.stringify(finalUser));
-    localStorage.setItem("role", finalUser.role);
-    localStorage.setItem("token", res.data.token); // optional but good
-
-    toast.success("Login Success ✅");
-
-    // 🔁 Navigation
-    if (finalUser.role === "user" || finalUser.role === "USER") {
-      navigate("/user");
-    } else if (finalUser.role === "admin" || finalUser.role === "ADMIN") {
-      navigate("/admin");
-    } else if (finalUser.role === "seller" || finalUser.role === "SELLER") {
-      navigate("/seller");
-    } else {
-      toast.error("Invalid Role ❌");
-    }
-
-  } catch (err) {
-    console.log("LOGIN ERROR:", err);
-
-    const message =
-      err.response?.data?.message ||
-      err.message ||
-      "Login Failed ❌";
-
-    toast.error(message);
-  }
-};
-
+  };
 
   const onSubmit = (data) => {
     console.log(data);
@@ -126,126 +63,153 @@ const submitHandler = async (data) => {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center relative overflow-hidden animate-zoom"
+      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#050816] px-4 py-10 sm:px-6"
       style={{
         backgroundImage:
-          "url('https://images.unsplash.com/photo-1503376780353-7e6692767b70')",
+          "url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1600&q=80')",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
     >
-      {/* Dark Overlay */}
-      <div className="absolute inset-0 bg-black/70"></div>
+      <div className="absolute inset-0 bg-[#020617]/85" />
 
-      {/* Moving Light Effect */}
-      <div className="absolute w-72 h-72 bg-blue-500 opacity-20 blur-3xl rounded-full animate-float top-20 left-10"></div>
-      <div className="absolute w-72 h-72 bg-red-500 opacity-20 blur-3xl rounded-full animate-float2 bottom-20 right-10"></div>
+      <div className="absolute left-[-80px] top-16 h-72 w-72 rounded-full bg-cyan-500/15 blur-3xl" />
+      <div className="absolute bottom-10 right-[-60px] h-72 w-72 rounded-full bg-emerald-500/10 blur-3xl" />
 
-      {/* Glass Card (Same as Signup) */}
-      <div className="relative z-10 w-full max-w-md bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl shadow-2xl p-8">
-        <h2 className="text-3xl font-bold text-center text-white mb-6">
-          Welcome Back 🚗
-        </h2>
-
-        <form onSubmit={handleSubmit(submitHandler)} className="space-y-4">
-          {/* Email */}
+      <div className="relative z-10 grid w-full max-w-6xl overflow-hidden rounded-[32px] border border-white/10 bg-[#0b1120]/88 shadow-[0_20px_80px_rgba(0,0,0,0.5)] backdrop-blur-2xl lg:grid-cols-[0.9fr_1.1fr]">
+        <div className="hidden border-r border-white/10 bg-gradient-to-br from-cyan-500/8 via-transparent to-emerald-500/8 p-10 lg:flex lg:flex-col lg:justify-between">
           <div>
-            <input
-              type="email"
-              placeholder="Email Address"
-              className={`w-full px-4 py-2 rounded-lg bg-white/20 text-white placeholder-gray-300 border ${
-                errors.email ? "border-red-500" : "border-white/30"
-              } focus:outline-none focus:ring-2 focus:ring-white`}
-              {...register("email", {
-                required: "Email required",
-              })}
-            />
-            {errors.email && (
-              <p className="text-red-400 text-sm mt-1">
-                {errors.email.message}
-              </p>
-            )}
+            <div className="inline-flex items-center rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-sm text-cyan-200">
+              Welcome Back
+            </div>
+
+            <h1 className="mt-6 text-4xl font-bold leading-tight text-white">
+              Login to your
+              <span className="block text-cyan-300">CarScout account</span>
+            </h1>
+
+            <p className="mt-5 max-w-md text-base leading-8 text-slate-300">
+              Access your account to explore verified cars, manage offers, and
+              continue your premium CarScout experience.
+            </p>
           </div>
 
-          {/* Password */}
-          <div>
-            <input
-              type="password"
-              placeholder="Password"
-              className={`w-full px-4 py-2 rounded-lg bg-white/20 text-white placeholder-gray-300 border ${
-                errors.password ? "border-red-500" : "border-white/30"
-              } focus:outline-none focus:ring-2 focus:ring-white`}
-              {...register("password", {
-                required: "Password is required",
-                minLength: {
-                  value: 6,
-                  message: "Minimum 6 characters",
-                },
-              })}
-            />
-            {errors.password && (
-              <p className="text-red-400 text-sm mt-1">
-                {errors.password.message}
+          <div className="space-y-4">
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+              <p className="text-sm font-semibold text-white">Trusted access</p>
+              <p className="mt-2 text-sm leading-6 text-slate-400">
+                Securely log in and continue your buyer or seller journey with confidence.
               </p>
-            )}
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+              <p className="text-sm font-semibold text-white">Smart dashboard</p>
+              <p className="mt-2 text-sm leading-6 text-slate-400">
+                Manage listings, offers, and account details through a clean premium interface.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+              <p className="text-sm font-semibold text-white">Modern experience</p>
+              <p className="mt-2 text-sm leading-6 text-slate-400">
+                Built for a simple, smooth, and professional used-car marketplace flow.
+              </p>
+            </div>
           </div>
+        </div>
 
-          <button
-            type="submit"
-            className="w-full bg-white text-black py-2 rounded-lg font-semibold hover:bg-gray-200 transition"
-          >
-            Login
-          </button>
-        </form>
+        <div className="p-6 sm:p-8 lg:p-10">
+          <div className="mx-auto max-w-xl">
+            <div className="mb-8">
+              <p className="text-sm uppercase tracking-[0.22em] text-cyan-300">
+                Login
+              </p>
+              <h2 className="mt-3 text-3xl font-bold text-white sm:text-4xl">
+                Welcome Back
+              </h2>
+              <p className="mt-3 text-sm leading-6 text-slate-400">
+                Log in to access your dashboard and continue browsing or managing
+                your cars on CarScout.
+              </p>
+            </div>
 
-        {/* ✅ Forgot Password Link */}
-        <p className="text-center mt-4 text-gray-300 text-sm">
-          Forgot Password?{" "}
-          <Link to="/forgotpassword" className="text-blue-400 hover:underline">
-            Click Here
-          </Link>
-        </p>
+            <form onSubmit={handleSubmit(submitHandler)} className="space-y-4">
+              <div>
+                <label className="mb-2 block text-sm text-slate-300">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  placeholder="Enter email"
+                  className={`w-full rounded-2xl border bg-[#0f172a] px-4 py-3 text-white placeholder:text-slate-500 outline-none transition focus:ring-2 focus:ring-cyan-500/40 ${
+                    errors.email ? "border-red-500" : "border-white/10"
+                  }`}
+                  {...register("email", {
+                    required: "Email required",
+                  })}
+                />
+                {errors.email && (
+                  <p className="mt-2 text-sm text-red-400">
+                    {errors.email.message}
+                  </p>
+                )}
+              </div>
 
-        <p className="text-center text-gray-300 mt-4 text-sm">
-          Don’t have an account?{" "}
-          <Link
-            to="/signup"
-            className="text-white font-semibold cursor-pointer hover:underline"
-          >
-            Sign Up
-          </Link>
-        </p>
+              <div>
+                <label className="mb-2 block text-sm text-slate-300">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  placeholder="Enter password"
+                  className={`w-full rounded-2xl border bg-[#0f172a] px-4 py-3 text-white placeholder:text-slate-500 outline-none transition focus:ring-2 focus:ring-cyan-500/40 ${
+                    errors.password ? "border-red-500" : "border-white/10"
+                  }`}
+                  {...register("password", {
+                    required: "Password is required",
+                    minLength: {
+                      value: 6,
+                      message: "Minimum 6 characters",
+                    },
+                  })}
+                />
+                {errors.password && (
+                  <p className="mt-2 text-sm text-red-400">
+                    {errors.password.message}
+                  </p>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                className="mt-2 w-full rounded-2xl bg-cyan-500 py-3.5 text-base font-semibold text-slate-950 transition hover:bg-cyan-400"
+              >
+                Login
+              </button>
+            </form>
+
+            <p className="mt-5 text-center text-sm text-slate-400">
+              Forgot Password?{" "}
+              <Link
+                to="/forgotpassword"
+                className="font-semibold text-cyan-300 transition hover:text-cyan-200"
+              >
+                Click Here
+              </Link>
+            </p>
+
+            <p className="mt-4 text-center text-sm text-slate-400">
+              Don’t have an account?{" "}
+              <Link
+                to="/signup"
+                className="font-semibold text-cyan-300 transition hover:text-cyan-200"
+              >
+                Sign Up
+              </Link>
+            </p>
+          </div>
+        </div>
       </div>
-
-      {/* Same Animations as Signup */}
-      <style>{`
-        .animate-zoom {
-          animation: zoom 25s ease-in-out infinite alternate;
-        }
-
-        @keyframes zoom {
-          0% { background-size: 100%; }
-          100% { background-size: 115%; }
-        }
-
-        .animate-float {
-          animation: float 8s ease-in-out infinite alternate;
-        }
-
-        .animate-float2 {
-          animation: float2 10s ease-in-out infinite alternate;
-        }
-
-        @keyframes float {
-          from { transform: translateY(0px); }
-          to { transform: translateY(-40px); }
-        }
-
-        @keyframes float2 {
-          from { transform: translateY(0px); }
-          to { transform: translateY(40px); }
-        }
-      `}</style>
     </div>
   );
 };

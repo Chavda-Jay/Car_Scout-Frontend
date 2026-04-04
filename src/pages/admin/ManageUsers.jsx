@@ -7,7 +7,6 @@ const ManageUsers = () => {
   const [editUser, setEditUser] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // 🔹 GET USERS
   const getUsers = async () => {
     try {
       setLoading(true);
@@ -20,7 +19,6 @@ const ManageUsers = () => {
     }
   };
 
-  // 🔹 DELETE USER
   const deleteUser = async (id) => {
     if (window.confirm("Delete this user?")) {
       try {
@@ -33,18 +31,15 @@ const ManageUsers = () => {
     }
   };
 
-  // 🔹 EDIT OPEN
   const handleEdit = (user) => {
     setEditUser(user);
   };
 
-  // 🔹 CHANGE
   const handleChange = (e) => {
     const { name, value } = e.target;
     setEditUser({ ...editUser, [name]: value });
   };
 
-  // 🔹 UPDATE USER
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
@@ -62,167 +57,188 @@ const ManageUsers = () => {
   }, []);
 
   return (
-    <div className="p-6 text-white">
-
-      {/* TITLE */}
-      <h2 className="text-3xl font-bold mb-6">Manage Users 👤</h2>
-
-      {/* LOADING */}
-      {loading ? (
-        <p className="text-gray-400">Loading users...</p>
-      ) : (
-        <div className="overflow-x-auto rounded-xl border border-gray-700 shadow-lg">
-          <table className="min-w-full text-sm text-left">
-
-            {/* HEADER */}
-            <thead className="bg-gray-800 text-gray-300 uppercase text-xs tracking-wider">
-              <tr>
-                <th className="p-3">Name</th>
-                <th className="p-3">Email</th>
-                <th className="p-3">Role</th>
-                <th className="p-3">Status</th>
-                <th className="p-3 text-center">Actions</th>
-              </tr>
-            </thead>
-
-            {/* BODY */}
-            <tbody className="divide-y divide-gray-700">
-              {users.length > 0 ? (
-                users.map((user) => (
-                  <tr key={user._id} className="hover:bg-gray-800 transition">
-
-                    <td className="p-3 font-semibold">
-                      {user.firstName} {user.lastName}
-                    </td>
-
-                    <td className="p-3">{user.email}</td>
-
-                    <td className="p-3">
-                      <span className={`px-2 py-1 rounded text-xs ${
-                        user.role === "admin"
-                          ? "bg-purple-600"
-                          : "bg-blue-600"
-                      }`}>
-                        {user.role}
-                      </span>
-                    </td>
-
-                    <td className="p-3">
-                      <span className={`px-2 py-1 rounded text-xs ${
-                        user.status === "active"
-                          ? "bg-green-600"
-                          : "bg-red-600"
-                      }`}>
-                        {user.status}
-                      </span>
-                    </td>
-
-                    <td className="p-3 flex justify-center gap-2">
-                      <button
-                        onClick={() => handleEdit(user)}
-                        className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm"
-                      >
-                        Edit
-                      </button>
-
-                      <button
-                        onClick={() => deleteUser(user._id)}
-                        className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm"
-                      >
-                        Delete
-                      </button>
-                    </td>
-
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="5" className="text-center p-5 text-gray-400">
-                    No Users Found 🚫
-                  </td>
-                </tr>
-              )}
-            </tbody>
-
-          </table>
+    <div className="min-h-screen bg-[#0b1120] px-4 py-8 text-white sm:px-6 lg:px-10">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-8 rounded-3xl border border-white/10 bg-[#111827] p-6 shadow-[0_10px_30px_rgba(0,0,0,0.20)]">
+          <p className="text-sm uppercase tracking-[0.2em] text-cyan-300">
+            Admin Panel
+          </p>
+          <h2 className="mt-2 text-3xl font-bold">Manage Users</h2>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
+            Review all registered users, update their account details, and manage
+            roles and status through a clean admin workspace.
+          </p>
         </div>
-      )}
 
-      {/* 🔥 EDIT MODAL */}
-      {editUser && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
-          <div className="bg-gray-900 p-6 rounded-xl w-full max-w-lg shadow-xl">
+        {loading ? (
+          <div className="rounded-3xl border border-white/10 bg-[#111827] p-8 shadow-[0_10px_30px_rgba(0,0,0,0.20)]">
+            <p className="text-slate-400">Loading users...</p>
+          </div>
+        ) : (
+          <div className="overflow-hidden rounded-3xl border border-white/10 bg-[#111827] shadow-[0_10px_30px_rgba(0,0,0,0.20)]">
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-left text-sm">
+                <thead className="border-b border-white/10 bg-[#0f172a] text-[11px] uppercase tracking-[0.18em] text-slate-400">
+                  <tr>
+                    <th className="px-5 py-4">Name</th>
+                    <th className="px-5 py-4">Email</th>
+                    <th className="px-5 py-4">Role</th>
+                    <th className="px-5 py-4">Status</th>
+                    <th className="px-5 py-4 text-center">Actions</th>
+                  </tr>
+                </thead>
 
-            <h3 className="text-xl font-bold mb-4">Edit User 👤</h3>
+                <tbody className="divide-y divide-white/10">
+                  {users.length > 0 ? (
+                    users.map((user) => (
+                      <tr key={user._id} className="transition hover:bg-white/5">
+                        <td className="px-5 py-4 font-semibold text-white">
+                          {user.firstName} {user.lastName}
+                        </td>
 
-            <form onSubmit={handleUpdate} className="space-y-3">
+                        <td className="px-5 py-4 text-slate-300">
+                          {user.email}
+                        </td>
 
-              <input
-                name="firstName"
-                value={editUser.firstName}
-                onChange={handleChange}
-                placeholder="First Name"
-                className="w-full p-2 rounded bg-gray-800 outline-none"
-              />
+                        <td className="px-5 py-4">
+                          <span
+                            className={`rounded-full px-3 py-1 text-xs font-medium ${
+                              user.role === "admin"
+                                ? "bg-violet-400/10 text-violet-300 border border-violet-400/20"
+                                : "bg-cyan-400/10 text-cyan-300 border border-cyan-400/20"
+                            }`}
+                          >
+                            {user.role}
+                          </span>
+                        </td>
 
-              <input
-                name="lastName"
-                value={editUser.lastName}
-                onChange={handleChange}
-                placeholder="Last Name"
-                className="w-full p-2 rounded bg-gray-800 outline-none"
-              />
+                        <td className="px-5 py-4">
+                          <span
+                            className={`rounded-full px-3 py-1 text-xs font-medium ${
+                              user.status === "active"
+                                ? "bg-emerald-400/10 text-emerald-300 border border-emerald-400/20"
+                                : "bg-red-400/10 text-red-300 border border-red-400/20"
+                            }`}
+                          >
+                            {user.status}
+                          </span>
+                        </td>
 
-              <input
-                name="email"
-                value={editUser.email}
-                onChange={handleChange}
-                placeholder="Email"
-                className="w-full p-2 rounded bg-gray-800 outline-none"
-              />
+                        <td className="px-5 py-4">
+                          <div className="flex justify-center gap-2">
+                            <button
+                              onClick={() => handleEdit(user)}
+                              className="rounded-xl bg-cyan-500 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-cyan-400"
+                            >
+                              Edit
+                            </button>
 
-              <select
-                name="role"
-                value={editUser.role}
-                onChange={handleChange}
-                className="w-full p-2 rounded bg-gray-800 outline-none"
-              >
-                <option value="user">User</option>
-                <option value="admin">Admin</option>
-              </select>
+                            <button
+                              onClick={() => deleteUser(user._id)}
+                              className="rounded-xl bg-red-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-600"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan="5"
+                        className="px-5 py-10 text-center text-slate-400"
+                      >
+                        No Users Found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
-              {/* STATUS */}
-              <select
-                name="status"
-                value={editUser.status}
-                onChange={handleChange}
-                className="w-full p-2 rounded bg-gray-800 outline-none"
-              >
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-                <option value="blocked">Blocked</option>
-                <option value="deleted">Deleted</option>
-              </select>
-
-              <div className="flex justify-between mt-4">
-                <button className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded">
-                  Update
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setEditUser(null)}
-                  className="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded"
-                >
-                  Cancel
-                </button>
+        {editUser && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
+            <div className="w-full max-w-lg rounded-3xl border border-white/10 bg-[#111827] p-6 shadow-2xl">
+              <div className="mb-6">
+                <p className="text-sm uppercase tracking-[0.2em] text-cyan-300">
+                  Edit User
+                </p>
+                <h3 className="mt-2 text-2xl font-bold text-white">
+                  Update User Details
+                </h3>
               </div>
 
-            </form>
-          </div>
-        </div>
-      )}
+              <form onSubmit={handleUpdate} className="space-y-4">
+                <input
+                  name="firstName"
+                  value={editUser.firstName}
+                  onChange={handleChange}
+                  placeholder="First Name"
+                  className="w-full rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-cyan-500/40"
+                />
 
+                <input
+                  name="lastName"
+                  value={editUser.lastName}
+                  onChange={handleChange}
+                  placeholder="Last Name"
+                  className="w-full rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-cyan-500/40"
+                />
+
+                <input
+                  name="email"
+                  value={editUser.email}
+                  onChange={handleChange}
+                  placeholder="Email"
+                  className="w-full rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-cyan-500/40"
+                />
+
+                <select
+                  name="role"
+                  value={editUser.role}
+                  onChange={handleChange}
+                  className="w-full rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white outline-none focus:ring-2 focus:ring-cyan-500/40"
+                >
+                  <option value="user">User</option>
+                  <option value="admin">Admin</option>
+                </select>
+
+                <select
+                  name="status"
+                  value={editUser.status}
+                  onChange={handleChange}
+                  className="w-full rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white outline-none focus:ring-2 focus:ring-cyan-500/40"
+                >
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                  <option value="blocked">Blocked</option>
+                  <option value="deleted">Deleted</option>
+                </select>
+
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="submit"
+                    className="rounded-xl bg-emerald-500 px-6 py-3 font-semibold text-white transition hover:bg-emerald-400"
+                  >
+                    Update
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setEditUser(null)}
+                    className="rounded-xl bg-white/10 px-6 py-3 font-semibold text-white transition hover:bg-white/15"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

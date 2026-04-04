@@ -24,7 +24,10 @@ export const AdminSidebar = () => {
   const navigate = useNavigate();
 
   const adminName = localStorage.getItem("firstName") || "Admin";
-  const initials = useMemo(() => adminName.slice(0, 2).toUpperCase(), [adminName]);
+  const initials = useMemo(
+    () => adminName.slice(0, 2).toUpperCase(),
+    [adminName]
+  );
 
   const toggleMenu = (menu) => {
     if (!isOpen) return;
@@ -42,40 +45,42 @@ export const AdminSidebar = () => {
   };
 
   const linkStyle = ({ isActive }) =>
-    `group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all duration-200 ${
+    `group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all duration-300 ${
       isActive
         ? "bg-cyan-400 text-slate-950 shadow-lg shadow-cyan-500/20"
         : "text-slate-300 hover:bg-white/5 hover:text-white"
     }`;
 
   const subLinkStyle = ({ isActive }) =>
-    `flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm transition-all duration-200 ${
+    `flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm transition-all duration-300 ${
       isActive
         ? "bg-white/10 text-cyan-300"
         : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
     }`;
 
   const menuItemStyle =
-    "group flex cursor-pointer items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-300 transition-all duration-200 hover:bg-white/5 hover:text-white";
+    "group flex cursor-pointer items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-300 transition-all duration-300 hover:bg-white/5 hover:text-white";
 
   return (
     <div className="flex min-h-screen bg-[#0b1120] text-white">
       <aside
-        className={`relative border-r border-white/10 bg-[#0f172a] transition-all duration-300 ${
+        className={`relative border-r border-white/10 bg-[#0f172a]/95 backdrop-blur-xl transition-all duration-300 ${
           isOpen ? "w-72" : "w-24"
         }`}
       >
+        <div className="pointer-events-none absolute left-0 top-0 h-52 w-52 rounded-full bg-cyan-500/10 blur-3xl" />
+
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="absolute -right-3 top-8 z-20 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-cyan-400 text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-300"
+          className="absolute -right-3 top-8 z-20 flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-cyan-400 text-slate-950 shadow-lg shadow-cyan-500/20 transition duration-300 hover:scale-105 hover:bg-cyan-300"
         >
           <FiMenu size={18} />
         </button>
 
-        <div className="border-b border-white/10 px-5 py-5">
+        <div className="relative border-b border-white/10 px-5 py-5">
           {isOpen ? (
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-400 shadow-lg shadow-cyan-500/20">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-br from-cyan-300 to-cyan-500 shadow-[0_10px_30px_rgba(34,211,238,0.25)]">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 64 64"
@@ -97,7 +102,7 @@ export const AdminSidebar = () => {
                   <circle cx="44" cy="47" r="4" fill="currentColor" />
                   <path
                     d="M22 30H42"
-                    stroke="#22d3ee"
+                    stroke="#ecfeff"
                     strokeWidth="2"
                     strokeLinecap="round"
                   />
@@ -115,7 +120,7 @@ export const AdminSidebar = () => {
             </div>
           ) : (
             <div className="flex justify-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-400 shadow-lg shadow-cyan-500/20">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-br from-cyan-300 to-cyan-500 shadow-[0_10px_30px_rgba(34,211,238,0.25)]">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 64 64"
@@ -141,7 +146,7 @@ export const AdminSidebar = () => {
           )}
         </div>
 
-        <nav className="space-y-2 px-4 py-5">
+        <nav className="relative space-y-2 px-4 py-5">
           <NavLink to="/admin/dashboard" className={linkStyle}>
             <FiHome size={20} />
             {isOpen && <span>Dashboard</span>}
@@ -153,7 +158,11 @@ export const AdminSidebar = () => {
               {isOpen && (
                 <>
                   <span className="flex-1">Cars</span>
-                  {openMenus.cars ? <FiChevronDown size={18} /> : <FiChevronRight size={18} />}
+                  {openMenus.cars ? (
+                    <FiChevronDown size={18} />
+                  ) : (
+                    <FiChevronRight size={18} />
+                  )}
                 </>
               )}
             </div>
@@ -179,7 +188,11 @@ export const AdminSidebar = () => {
               {isOpen && (
                 <>
                   <span className="flex-1">Users</span>
-                  {openMenus.users ? <FiChevronDown size={18} /> : <FiChevronRight size={18} />}
+                  {openMenus.users ? (
+                    <FiChevronDown size={18} />
+                  ) : (
+                    <FiChevronRight size={18} />
+                  )}
                 </>
               )}
             </div>
@@ -217,7 +230,7 @@ export const AdminSidebar = () => {
           <div className="pt-4">
             <button
               onClick={handleLogout}
-              className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-red-400 transition hover:bg-red-500/10 hover:text-red-300"
+              className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-red-400 transition duration-300 hover:bg-red-500/10 hover:text-red-300"
             >
               <FiLogOut size={20} />
               {isOpen && <span>Logout</span>}
@@ -227,14 +240,18 @@ export const AdminSidebar = () => {
 
         {isOpen && (
           <div className="absolute bottom-0 left-0 right-0 border-t border-white/10 bg-[#0b1120]/70 p-4 backdrop-blur">
-            <div className="flex items-center gap-3 rounded-2xl bg-white/5 p-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-cyan-400 font-bold text-slate-950">
+            <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-cyan-400 font-bold text-slate-950 shadow-lg shadow-cyan-500/20">
                 {initials}
               </div>
 
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-white">{adminName}</p>
-                <p className="truncate text-xs text-slate-400">admin@carscout.com</p>
+                <p className="truncate text-sm font-semibold text-white">
+                  {adminName}
+                </p>
+                <p className="truncate text-xs text-slate-400">
+                  admin@carscout.com
+                </p>
               </div>
             </div>
           </div>

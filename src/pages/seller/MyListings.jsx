@@ -9,7 +9,6 @@ const MyListings = () => {
 
   const user = JSON.parse(localStorage.getItem("user"));
 
-  // 🔹 GET MY CARS
   const getMyCars = async () => {
     try {
       const res = await API.get(`/car/user/${user._id}`);
@@ -25,13 +24,12 @@ const MyListings = () => {
     }
   }, []);
 
-  // 🔴 DELETE
   const handleDelete = async (id) => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete this car?",
+      "Are you sure you want to delete this car?"
     );
 
-    if (!confirmDelete) return; // ❌ cancel
+    if (!confirmDelete) return;
 
     try {
       await API.delete(`/car/${id}`);
@@ -43,31 +41,23 @@ const MyListings = () => {
     }
   };
 
-  // 🟡 UPDATE
   const handleUpdate = async (e) => {
     e.preventDefault();
 
     try {
       const formData = new FormData();
 
-      // 🔹 append all fields
-      // for (let key in editCar) {
-      //   if (key !== "newImages") {
-      //     formData.append(key, editCar[key]);
-      //   }
-      // }
-      
       for (let key in editCar) {
         if (
           key !== "newImages" &&
           key !== "images" &&
           key !== "_id" &&
-          key !== "sellerId" // 🔥 IMPORTANT FIX
+          key !== "sellerId"
         ) {
           formData.append(key, editCar[key]);
         }
       }
-      // 🔹 append images
+
       if (editCar.newImages) {
         for (let i = 0; i < editCar.newImages.length; i++) {
           formData.append("images", editCar.newImages[i]);
@@ -77,7 +67,6 @@ const MyListings = () => {
       await API.put(`/car/${editCar._id}`, formData);
 
       toast.success("Car Updated with images");
-
       setEditCar(null);
       getMyCars();
     } catch (err) {
@@ -87,243 +76,300 @@ const MyListings = () => {
   };
 
   return (
-    <div className="p-6 text-white">
-      <h2 className="text-2xl font-bold mb-4">My Listings</h2>
+    <div className="min-h-screen bg-[#0b1120] px-4 py-8 text-white sm:px-6 lg:px-10">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-8 rounded-3xl border border-white/10 bg-[#111827] p-6 shadow-[0_10px_30px_rgba(0,0,0,0.20)]">
+          <p className="text-sm uppercase tracking-[0.2em] text-cyan-300">
+            Seller Panel
+          </p>
+          <h2 className="mt-2 text-3xl font-bold">My Listings</h2>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
+            Manage your listed cars, update details, and keep your inventory
+            looking professional on CarScout.
+          </p>
+        </div>
 
-      {cars.length === 0 ? (
-        <p>No Cars Found </p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {cars.map((car) => (
-            <div key={car._id} className="bg-gray-800 p-4 rounded">
-              <img
-                src={car.images[0]}
-                alt=""
-                className="h-40 w-full object-cover rounded"
+        {cars.length === 0 ? (
+          <div className="rounded-3xl border border-white/10 bg-[#111827] p-10 text-center shadow-[0_10px_30px_rgba(0,0,0,0.20)]">
+            <h3 className="text-2xl font-semibold text-white">No Cars Found</h3>
+            <p className="mt-3 text-slate-400">
+              You have not added any listings yet.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {cars.map((car) => (
+              <div
+                key={car._id}
+                className="overflow-hidden rounded-3xl border border-white/10 bg-[#111827] shadow-[0_10px_30px_rgba(0,0,0,0.22)]"
+              >
+                <div className="relative">
+                  <img
+                    src={car.images?.[0]}
+                    alt={car.model}
+                    className="h-52 w-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  <div className="absolute left-4 top-4 rounded-full border border-white/10 bg-black/40 px-3 py-1.5 text-xs font-medium text-white backdrop-blur">
+                    Active Listing
+                  </div>
+                  <div className="absolute bottom-4 left-4 rounded-xl bg-cyan-400 px-3 py-2 text-sm font-bold text-slate-950 shadow-lg">
+                    ₹ {Number(car.price || 0).toLocaleString("en-IN")}
+                  </div>
+                </div>
+
+                <div className="p-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h3 className="text-xl font-bold text-white">
+                        {car.brand} {car.model}
+                      </h3>
+                      <p className="mt-1 text-sm text-slate-400">
+                        {car.year} • {car.fuelType || "Not available"}
+                      </p>
+                    </div>
+
+                    <div className="rounded-xl border border-white/10 bg-[#0f172a] px-3 py-1.5 text-xs text-slate-300">
+                      {car.condition || "Good"}
+                    </div>
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-2 gap-3">
+                    <div className="rounded-2xl bg-[#0f172a] px-4 py-3">
+                      <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">
+                        Location
+                      </p>
+                      <p className="mt-1 text-sm font-medium text-slate-200">
+                        {car.location || "Not available"}
+                      </p>
+                    </div>
+
+                    <div className="rounded-2xl bg-[#0f172a] px-4 py-3">
+                      <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">
+                        Mileage
+                      </p>
+                      <p className="mt-1 text-sm font-medium text-slate-200">
+                        {car.mileage || "N/A"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 flex gap-3">
+                    <button
+                      onClick={() => setEditCar(car)}
+                      className="flex-1 rounded-xl bg-cyan-500 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400"
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      onClick={() => setDeleteId(car._id)}
+                      className="flex-1 rounded-xl bg-red-500/90 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-500"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {editCar && (
+          <div className="mt-10 rounded-3xl border border-white/10 bg-[#111827] p-6 shadow-[0_10px_30px_rgba(0,0,0,0.22)]">
+            <div className="mb-6">
+              <p className="text-sm uppercase tracking-[0.2em] text-cyan-300">
+                Edit Listing
+              </p>
+              <h2 className="mt-2 text-3xl font-bold text-white">
+                Update Car Details
+              </h2>
+            </div>
+
+            <form
+              onSubmit={handleUpdate}
+              className="grid grid-cols-1 gap-4 md:grid-cols-2"
+            >
+              <input
+                type="text"
+                value={editCar.brand}
+                onChange={(e) =>
+                  setEditCar({ ...editCar, brand: e.target.value })
+                }
+                placeholder="Brand"
+                className="rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/40"
               />
 
-              <h3 className="text-lg font-bold mt-2">
-                {car.brand} {car.model}
-              </h3>
+              <input
+                type="text"
+                value={editCar.model}
+                onChange={(e) =>
+                  setEditCar({ ...editCar, model: e.target.value })
+                }
+                placeholder="Model"
+                className="rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/40"
+              />
 
-              <p>₹ {car.price}</p>
-              <p>{car.location}</p>
+              <input
+                type="number"
+                value={editCar.year}
+                onChange={(e) =>
+                  setEditCar({ ...editCar, year: e.target.value })
+                }
+                placeholder="Year"
+                className="rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/40"
+              />
 
-              {/* ✏️ EDIT */}
-              <button
-                onClick={() => setEditCar(car)}
-                className="bg-blue-500 px-3 py-1 mt-2 mr-2 text-white rounded"
+              <input
+                type="number"
+                value={editCar.price}
+                onChange={(e) =>
+                  setEditCar({ ...editCar, price: e.target.value })
+                }
+                placeholder="Price"
+                className="rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/40"
+              />
+
+              <input
+                type="number"
+                value={editCar.mileage}
+                onChange={(e) =>
+                  setEditCar({ ...editCar, mileage: e.target.value })
+                }
+                placeholder="Mileage"
+                className="rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/40"
+              />
+
+              <input
+                type="text"
+                value={editCar.fuelType}
+                onChange={(e) =>
+                  setEditCar({ ...editCar, fuelType: e.target.value })
+                }
+                placeholder="Fuel Type"
+                className="rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/40"
+              />
+
+              <input
+                type="text"
+                value={editCar.location}
+                onChange={(e) =>
+                  setEditCar({ ...editCar, location: e.target.value })
+                }
+                placeholder="Location"
+                className="rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/40"
+              />
+
+              <select
+                value={editCar.condition}
+                onChange={(e) =>
+                  setEditCar({ ...editCar, condition: e.target.value })
+                }
+                className="rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/40"
               >
-                Edit
-              </button>
+                <option>Excellent</option>
+                <option>Good</option>
+                <option>Fair</option>
+              </select>
 
-              {/* ❌ DELETE */}
-              <button
-                onClick={() => setDeleteId(car._id)}
-                className="bg-red-500 px-3 py-1 mt-2 mr-2 text-white rounded"
-              >
-                Delete
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
+              <textarea
+                value={editCar.description}
+                onChange={(e) =>
+                  setEditCar({ ...editCar, description: e.target.value })
+                }
+                placeholder="Description"
+                className="rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/40 md:col-span-2"
+                rows="5"
+              />
 
-      {/* 🔥 FULL EDIT FORM */}
-      {editCar && (
-        <div className="bg-gray-900/80 backdrop-blur-md p-6 mt-6 rounded-xl shadow-lg border border-gray-700">
-          <h2 className="text-2xl font-semibold mb-4 text-white">
-            Edit Car Details
-          </h2>
+              <div className="md:col-span-2">
+                <label className="mb-2 block text-sm text-slate-300">
+                  Upload Images
+                </label>
 
-          <form
-            onSubmit={handleUpdate}
-            className="grid grid-cols-1 md:grid-cols-2 gap-4"
-          >
-            {/* BRAND */}
-            <input
-              type="text"
-              value={editCar.brand}
-              onChange={(e) =>
-                setEditCar({ ...editCar, brand: e.target.value })
-              }
-              placeholder="Brand"
-              className="bg-gray-800 text-white border border-gray-600 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+                <label className="flex cursor-pointer items-center justify-center rounded-2xl border border-dashed border-white/15 bg-[#0f172a] p-4 text-slate-300 transition hover:border-cyan-400/30 hover:bg-[#132033]">
+                  Choose Images
+                  <input
+                    type="file"
+                    multiple
+                    onChange={(e) => {
+                      setEditCar({ ...editCar, newImages: e.target.files });
+                    }}
+                    className="hidden"
+                  />
+                </label>
 
-            {/* MODEL */}
-            <input
-              type="text"
-              value={editCar.model}
-              onChange={(e) =>
-                setEditCar({ ...editCar, model: e.target.value })
-              }
-              placeholder="Model"
-              className="bg-gray-800 text-white border border-gray-600 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+                {editCar?.newImages && (
+                  <div className="mt-4 flex flex-wrap gap-3">
+                    {Array.from(editCar.newImages).map((file, index) => (
+                      <img
+                        key={index}
+                        src={URL.createObjectURL(file)}
+                        alt="preview"
+                        className="h-20 w-20 rounded-xl border border-white/10 object-cover"
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
 
-            {/* YEAR */}
-            <input
-              type="number"
-              value={editCar.year}
-              onChange={(e) => setEditCar({ ...editCar, year: e.target.value })}
-              placeholder="Year"
-              className="bg-gray-800 text-white border border-gray-600 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+              <div className="mt-2 flex gap-3 md:col-span-2">
+                <button
+                  type="submit"
+                  className="rounded-xl bg-cyan-500 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cyan-400"
+                >
+                  Update Car
+                </button>
 
-            {/* PRICE */}
-            <input
-              type="number"
-              value={editCar.price}
-              onChange={(e) =>
-                setEditCar({ ...editCar, price: e.target.value })
-              }
-              placeholder="Price"
-              className="bg-gray-800 text-white border border-gray-600 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+                <button
+                  type="button"
+                  onClick={() => setEditCar(null)}
+                  className="rounded-xl bg-white/10 px-6 py-3 font-semibold text-white transition hover:bg-white/15"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
 
-            {/* MILEAGE */}
-            <input
-              type="number"
-              value={editCar.mileage}
-              onChange={(e) =>
-                setEditCar({ ...editCar, mileage: e.target.value })
-              }
-              placeholder="Mileage"
-              className="bg-gray-800 text-white border border-gray-600 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+        {deleteId && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
+            <div className="w-full max-w-sm rounded-3xl border border-white/10 bg-[#111827] p-6 text-center text-white shadow-2xl">
+              <h2 className="text-xl font-semibold">Delete Listing?</h2>
+              <p className="mt-3 text-sm leading-6 text-slate-400">
+                Are you sure you want to delete this car listing? This action
+                cannot be undone.
+              </p>
 
-            {/* FUEL */}
-            <input
-              type="text"
-              value={editCar.fuelType}
-              onChange={(e) =>
-                setEditCar({ ...editCar, fuelType: e.target.value })
-              }
-              placeholder="Fuel Type"
-              className="bg-gray-800 text-white border border-gray-600 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-
-            {/* LOCATION */}
-            <input
-              type="text"
-              value={editCar.location}
-              onChange={(e) =>
-                setEditCar({ ...editCar, location: e.target.value })
-              }
-              placeholder="Location"
-              className="bg-gray-800 text-white border border-gray-600 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-
-            {/* CONDITION */}
-            <select
-              value={editCar.condition}
-              onChange={(e) =>
-                setEditCar({ ...editCar, condition: e.target.value })
-              }
-              className="bg-gray-800 text-white border border-gray-600 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option>Excellent</option>
-              <option>Good</option>
-              <option>Fair</option>
-            </select>
-
-            {/* DESCRIPTION (full width) */}
-            <textarea
-              value={editCar.description}
-              onChange={(e) =>
-                setEditCar({ ...editCar, description: e.target.value })
-              }
-              placeholder="Description"
-              className="md:col-span-2 bg-gray-800 text-white border border-gray-600 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-
-            {/* IMAGE INPUT */}
-            <div className="md:col-span-2">
-              <label className="block text-gray-300 mb-1">Upload Images</label>
-              <label className="flex items-left justify-left bg-gray-800 border border-gray-600 p-3 rounded cursor-pointer hover:bg-gray-700 transition">
-                <span className="text-white"> Choose Images</span>
-
-                <input
-                  type="file"
-                  multiple
-                  onChange={(e) => {
-                    console.log("FILES:", e.target.files); // debug
-                    setEditCar({ ...editCar, newImages: e.target.files });
+              <div className="mt-6 flex justify-center gap-3">
+                <button
+                  onClick={async () => {
+                    try {
+                      await API.delete(`/car/${deleteId}`);
+                      toast.success("Car Deleted Successfully ");
+                      setDeleteId(null);
+                      getMyCars();
+                    } catch (err) {
+                      toast.error("Delete Failed ");
+                    }
                   }}
-                  className="hidden"
-                />
-              </label>
-              {editCar?.newImages && (
-                <div className="flex gap-2 mt-3 flex-wrap">
-                  {Array.from(editCar.newImages).map((file, index) => (
-                    <img
-                      key={index}
-                      src={URL.createObjectURL(file)}
-                      alt="preview"
-                      className="h-20 w-20 object-cover rounded border border-gray-600"
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-            {/* BUTTONS */}
-            <div className="md:col-span-2 flex gap-3 mt-3">
-              <button
-                type="submit"
-                className="bg-blue-600 hover:bg-blue-700 px-5 py-2 rounded text-white font-medium"
-              >
-                Update Car
-              </button>
+                  className="rounded-xl bg-red-500 px-5 py-2.5 font-semibold text-white transition hover:bg-red-600"
+                >
+                  Yes, Delete
+                </button>
 
-              <button
-                type="button"
-                onClick={() => setEditCar(null)}
-                className="bg-gray-600 hover:bg-gray-700 px-5 py-2 rounded text-white"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {deleteId && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center">
-          <div className="bg-gray-900 p-6 rounded-lg text-white w-80 text-center">
-            <h2 className="text-lg font-semibold mb-4">Are you sure?</h2>
-
-            <p className="text-gray-400 mb-4">These images is Deleted ?</p>
-
-            <div className="flex justify-center gap-4">
-              {/* YES */}
-              <button
-                onClick={async () => {
-                  try {
-                    await API.delete(`/car/${deleteId}`);
-                    toast.success("Car Deleted Successfully ");
-                    setDeleteId(null);
-                    getMyCars();
-                  } catch (err) {
-                    toast.error("Delete Failed ");
-                  }
-                }}
-                className="bg-red-600 px-4 py-2 rounded"
-              >
-                Yes, Delete
-              </button>
-
-              {/* CANCEL */}
-              <button
-                onClick={() => setDeleteId(null)}
-                className="bg-gray-600 px-4 py-2 rounded"
-              >
-                Cancel
-              </button>
+                <button
+                  onClick={() => setDeleteId(null)}
+                  className="rounded-xl bg-white/10 px-5 py-2.5 font-semibold text-white transition hover:bg-white/15"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

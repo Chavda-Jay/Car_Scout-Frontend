@@ -135,7 +135,6 @@
 
 
 
-
 import React, { useEffect, useMemo, useState } from "react";
 import API from "../../api/Api";
 import {
@@ -149,6 +148,30 @@ import {
 } from "recharts";
 import { FaCarSide } from "react-icons/fa";
 import { FiUsers, FiTag, FiFileText } from "react-icons/fi";
+
+const AnimatedNumber = ({ value, duration = 1200 }) => {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    let start = 0;
+    const end = Number(value) || 0;
+    if (end === 0) {
+      setCount(0);
+      return;
+    }
+
+    const incrementTime = Math.max(20, Math.floor(duration / end));
+    const timer = setInterval(() => {
+      start += 1;
+      setCount(start);
+      if (start >= end) clearInterval(timer);
+    }, incrementTime);
+
+    return () => clearInterval(timer);
+  }, [value, duration]);
+
+  return <>{count}</>;
+};
 
 const Dashboard = () => {
   const [cars, setCars] = useState([]);
@@ -220,30 +243,44 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-[#0b1120] text-white">
-      <div className="mb-8 rounded-3xl border border-white/10 bg-[#111827] p-6 shadow-[0_10px_30px_rgba(0,0,0,0.20)]">
-        <p className="text-sm uppercase tracking-[0.2em] text-cyan-300">
-          Admin Dashboard
-        </p>
-        <h1 className="mt-2 text-3xl font-bold">Marketplace Overview</h1>
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
-          Monitor platform activity, track offers, and manage inventory with a
-          clean and professional dashboard.
-        </p>
+      <div className="mb-8 rounded-3xl border border-white/10 bg-[#111827] p-6 shadow-[0_10px_30px_rgba(0,0,0,0.20)] animate-[fadeUp_0.5s_ease]">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p className="text-sm uppercase tracking-[0.2em] text-cyan-300">
+              Admin Dashboard
+            </p>
+            <h1 className="mt-2 text-3xl font-bold">Marketplace Overview</h1>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
+              Monitor platform activity, track offers, and manage inventory with a
+              clean and professional dashboard.
+            </p>
+          </div>
+
+          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-sm text-emerald-300">
+            <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" />
+            Live Data
+          </div>
+        </div>
       </div>
 
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-        {stats.map((item) => (
+        {stats.map((item, index) => (
           <div
             key={item.title}
-            className="rounded-2xl border border-white/10 bg-[#111827] p-5 shadow-[0_8px_24px_rgba(0,0,0,0.18)]"
+            className="rounded-2xl border border-white/10 bg-[#111827] p-5 shadow-[0_8px_24px_rgba(0,0,0,0.18)] transition duration-300 hover:-translate-y-1 hover:border-cyan-400/20"
+            style={{ animation: `fadeUp 0.5s ease ${index * 0.08}s both` }}
           >
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-slate-400">{item.title}</p>
-                <h2 className="mt-2 text-3xl font-bold text-white">{item.value}</h2>
+                <h2 className="mt-2 text-3xl font-bold text-white">
+                  <AnimatedNumber value={item.value} />
+                </h2>
               </div>
 
-              <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${item.color}`}>
+              <div
+                className={`flex h-11 w-11 items-center justify-center rounded-2xl ${item.color}`}
+              >
                 {item.icon}
               </div>
             </div>
@@ -252,7 +289,10 @@ const Dashboard = () => {
       </div>
 
       <div className="mt-8 grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
-        <div className="rounded-3xl border border-white/10 bg-[#111827] p-6 shadow-[0_8px_24px_rgba(0,0,0,0.18)]">
+        <div
+          className="rounded-3xl border border-white/10 bg-[#111827] p-6 shadow-[0_8px_24px_rgba(0,0,0,0.18)] transition duration-300 hover:border-cyan-400/20"
+          style={{ animation: "fadeUp 0.6s ease 0.2s both" }}
+        >
           <p className="text-sm uppercase tracking-[0.2em] text-cyan-300">
             Offer Status
           </p>
@@ -281,7 +321,7 @@ const Dashboard = () => {
                     color: "#fff",
                   }}
                 />
-                <Bar dataKey="value" radius={[10, 10, 0, 0]}>
+                <Bar dataKey="value" radius={[10, 10, 0, 0]} animationDuration={1200}>
                   {offerStats.map((entry, index) => (
                     <Cell key={index} fill={entry.color} />
                   ))}
@@ -291,33 +331,45 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="rounded-3xl border border-white/10 bg-[#111827] p-6 shadow-[0_8px_24px_rgba(0,0,0,0.18)]">
+        <div
+          className="rounded-3xl border border-white/10 bg-[#111827] p-6 shadow-[0_8px_24px_rgba(0,0,0,0.18)]"
+          style={{ animation: "fadeUp 0.6s ease 0.3s both" }}
+        >
           <p className="text-sm uppercase tracking-[0.2em] text-amber-300">
             Quick Summary
           </p>
           <h2 className="mt-2 text-2xl font-bold">Current Status</h2>
 
           <div className="mt-6 space-y-4">
-            <div className="rounded-2xl bg-[#0f172a] p-4">
+            <div className="rounded-2xl bg-[#0f172a] p-4 transition duration-300 hover:bg-[#132033]">
               <p className="text-sm text-slate-400">Pending Offers</p>
-              <p className="mt-2 text-2xl font-bold text-cyan-300">{pendingOffers}</p>
+              <p className="mt-2 text-2xl font-bold text-cyan-300">
+                <AnimatedNumber value={pendingOffers} />
+              </p>
             </div>
 
-            <div className="rounded-2xl bg-[#0f172a] p-4">
+            <div className="rounded-2xl bg-[#0f172a] p-4 transition duration-300 hover:bg-[#132033]">
               <p className="text-sm text-slate-400">Accepted Offers</p>
-              <p className="mt-2 text-2xl font-bold text-emerald-300">{acceptedOffers}</p>
+              <p className="mt-2 text-2xl font-bold text-emerald-300">
+                <AnimatedNumber value={acceptedOffers} />
+              </p>
             </div>
 
-            <div className="rounded-2xl bg-[#0f172a] p-4">
+            <div className="rounded-2xl bg-[#0f172a] p-4 transition duration-300 hover:bg-[#132033]">
               <p className="text-sm text-slate-400">Rejected Offers</p>
-              <p className="mt-2 text-2xl font-bold text-amber-300">{rejectedOffers}</p>
+              <p className="mt-2 text-2xl font-bold text-amber-300">
+                <AnimatedNumber value={rejectedOffers} />
+              </p>
             </div>
           </div>
         </div>
       </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
-        <div className="rounded-3xl border border-white/10 bg-[#111827] p-6 shadow-[0_8px_24px_rgba(0,0,0,0.18)]">
+        <div
+          className="rounded-3xl border border-white/10 bg-[#111827] p-6 shadow-[0_8px_24px_rgba(0,0,0,0.18)]"
+          style={{ animation: "fadeUp 0.6s ease 0.4s both" }}
+        >
           <p className="text-sm uppercase tracking-[0.2em] text-cyan-300">
             Recent Cars
           </p>
@@ -325,10 +377,11 @@ const Dashboard = () => {
 
           <div className="mt-6 space-y-3">
             {recentCars.length > 0 ? (
-              recentCars.map((car) => (
+              recentCars.map((car, index) => (
                 <div
                   key={car._id}
-                  className="flex items-center justify-between rounded-2xl bg-[#0f172a] p-4"
+                  className="flex items-center justify-between rounded-2xl bg-[#0f172a] p-4 transition duration-300 hover:-translate-y-0.5 hover:bg-[#132033]"
+                  style={{ animation: `fadeUp 0.4s ease ${0.45 + index * 0.08}s both` }}
                 >
                   <div>
                     <p className="font-semibold text-white">
@@ -350,7 +403,10 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="rounded-3xl border border-white/10 bg-[#111827] p-6 shadow-[0_8px_24px_rgba(0,0,0,0.18)]">
+        <div
+          className="rounded-3xl border border-white/10 bg-[#111827] p-6 shadow-[0_8px_24px_rgba(0,0,0,0.18)]"
+          style={{ animation: "fadeUp 0.6s ease 0.5s both" }}
+        >
           <p className="text-sm uppercase tracking-[0.2em] text-amber-300">
             Recent Inspections
           </p>
@@ -358,10 +414,11 @@ const Dashboard = () => {
 
           <div className="mt-6 space-y-3">
             {recentInspections.length > 0 ? (
-              recentInspections.map((item) => (
+              recentInspections.map((item, index) => (
                 <div
                   key={item._id}
-                  className="flex items-center justify-between rounded-2xl bg-[#0f172a] p-4"
+                  className="flex items-center justify-between rounded-2xl bg-[#0f172a] p-4 transition duration-300 hover:-translate-y-0.5 hover:bg-[#132033]"
+                  style={{ animation: `fadeUp 0.4s ease ${0.5 + index * 0.08}s both` }}
                 >
                   <div>
                     <p className="font-semibold text-white">
@@ -383,6 +440,19 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      <style>{`
+        @keyframes fadeUp {
+          from {
+            opacity: 0;
+            transform: translateY(16px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </div>
   );
 };
