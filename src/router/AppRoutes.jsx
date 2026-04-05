@@ -11,6 +11,7 @@ import Home from "../pages/user/Home";
 import CarList from "../pages/user/CarList";
 import MyOffers from "../pages/user/Myoffers";
 import CarDetail from "../pages/user/CarDetail";
+import Notifications from "../pages/user/Notifications";
 
 // ADMIN PAGES
 import Dashboard from "../pages/admin/Dashboard";
@@ -26,56 +27,49 @@ import SellerHome from "../pages/seller/SellerHome";
 import MyListings from "../pages/seller/MyListings";
 import SellerOffers from "../pages/seller/SellerOffers";
 
-
-
-
 const router = createBrowserRouter([
-
-  // AUTH
   { path: "/", element: <Login /> },
   { path: "/signup", element: <Signup /> },
-  { path: "/forgotpassword", element:<Forgotpassword/>},
-  { path: "/resetpassword/:token", element:<ResetPassword/>},
+  { path: "/forgotpassword", element: <Forgotpassword /> },
+  { path: "/resetpassword/:token", element: <ResetPassword /> },
 
-  // USER PANEL
   {
     path: "/user",
     element: <UserNavbar />,
     children: [
       { index: true, element: <Home /> },
       { path: "cars", element: <CarList /> },
-      { path: "offers", element:<MyOffers/>},
-      { path: "car/:id", element: <CarDetail/>},
-     ]
+      { path: "offers", element: <MyOffers /> },
+      { path: "car/:id", element: <CarDetail /> },
+      { path: "notifications", element: <Notifications /> }
+    ]
   },
 
-  // ADMIN PANEL
   {
     path: "/admin",
     element: <AdminSidebar />,
     children: [
       { path: "dashboard", element: <Dashboard /> },
-      { path: "addcar", element:<AddCar/> },
+      { path: "addcar", element: <AddCar /> },
       { path: "managecars", element: <ManageCars /> },
       { path: "offers", element: <Offers /> },
       { path: "inspection", element: <Inspection /> },
-      { path: "users", element: <ManageUsers/>},
-      { path: "adduser", element:<AddUser/>}
+      { path: "users", element: <ManageUsers /> },
+      { path: "adduser", element: <AddUser /> }
     ]
   },
 
-  //SELLER PANEL
-{
-  path: "/seller",
-  element: <UserNavbar />,
-  children: [
-    { index: true, element: <SellerHome />},
-    { path: "addcar", element: <AddCar /> },
-    { path: "offers", element: <SellerOffers/>},
-    { path: "my-listings", element: <MyListings/>}
-  ]
-}
-
+  {
+    path: "/seller",
+    element: <UserNavbar />,
+    children: [
+      { index: true, element: <SellerHome /> },
+      { path: "addcar", element: <AddCar /> },
+      { path: "offers", element: <SellerOffers /> },
+      { path: "my-listings", element: <MyListings /> },
+      { path: "notifications", element: <Notifications /> }
+    ]
+  }
 ]);
 
 const AppRouter = () => {
@@ -83,4 +77,3 @@ const AppRouter = () => {
 };
 
 export default AppRouter;
-

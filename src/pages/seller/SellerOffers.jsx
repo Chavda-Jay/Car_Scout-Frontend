@@ -27,7 +27,7 @@ const SellerOffers = () => {
 
   const handleStatusChange = async (id, status) => {
     try {
-      await API.put(`/offer/${id}`, { status });
+      await API.put(`/offer/${id}`, { status, actionBy: "seller" });
 
       toast.success(`Offer ${status} ✅`);
 
@@ -47,6 +47,7 @@ const SellerOffers = () => {
     try {
       await API.put(`/offer/${id}`, {
         counterOffer: Number(counter),
+        actionBy: "seller"
       });
 
       toast.success("Counter sent 💰");

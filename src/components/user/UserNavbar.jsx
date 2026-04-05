@@ -124,19 +124,27 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import API from "../../api/Api";
 
 export const UserNavbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
   const navigate = useNavigate();
   const location = useLocation();
   const profileRef = useRef(null);
 
   const userName = localStorage.getItem("firstName") || "User";
+  const role = localStorage.getItem("role");
+  const user = JSON.parse(localStorage.getItem("user"));
+
   const initials = useMemo(
     () => userName.slice(0, 2).toUpperCase(),
     [userName]
   );
+
+  const basePath = role === "seller" ? "/seller" : "/user";
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -149,18 +157,35 @@ export const UserNavbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Poll unread notification count for navbar badge
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      try {
+        if (!user?._id) return;
+        const res = await API.get(`/notification/unread-count?userId=${user._id}`);
+        setUnreadCount(res.data.count || 0);
+      } catch (err) {
+        console.log("Notification count error:", err);
+      }
+    };
+
+    fetchUnreadCount();
+    const interval = setInterval(fetchUnreadCount, 5000);
+
+    return () => clearInterval(interval);
+  }, [user?._id]);
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
     localStorage.removeItem("firstName");
+    localStorage.removeItem("user");
     navigate("/");
   };
 
   const isActive = (path) => {
-    if (path === "/user") {
-      return (
-        location.pathname === "/user" || location.pathname === "/user/home"
-      );
+    if (path === basePath) {
+      return location.pathname === basePath;
     }
     return location.pathname.startsWith(path);
   };
@@ -178,7 +203,7 @@ export const UserNavbar = () => {
         <div className="relative mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <div className="pointer-events-none absolute left-10 top-1/2 h-20 w-20 -translate-y-1/2 rounded-full bg-cyan-500/10 blur-3xl" />
 
-          <Link to="/user" className="relative flex items-center gap-3">
+          <Link to={basePath} className="relative flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-br from-cyan-300 to-cyan-500 shadow-[0_10px_30px_rgba(34,211,238,0.25)] transition duration-300 hover:scale-105">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -219,21 +244,60 @@ export const UserNavbar = () => {
           </Link>
 
           <div className="hidden items-center gap-2 rounded-full border border-white/10 bg-white/5 p-1 shadow-[0_8px_24px_rgba(0,0,0,0.18)] md:flex">
-            <Link to="/user" className={navClass("/user")}>
+            <Link to={basePath} className={navClass(basePath)}>
               Home
             </Link>
-            <Link to="/user/cars" className={navClass("/user/cars")}>
-              Cars
+
+            {role !== "seller" && (
+              <Link to="/user/cars" className={navClass("/user/cars")}>
+                Cars
+              </Link>
+            )}
+
+            <Link to={`${basePath}/offers`} className={navClass(`${basePath}/offers`)}>
+              {role === "seller" ? "View Offers" : "My Offers"}
             </Link>
-            <Link to="/user/offers" className={navClass("/user/offers")}>
-              My Offers
-            </Link>
+
+            {role === "seller" && (
+              <Link
+                to="/seller/my-listings"
+                className={navClass("/seller/my-listings")}
+              >
+                My Listings
+              </Link>
+            )}
           </div>
 
           <div className="hidden items-center gap-3 md:flex">
             <div className="rounded-full border border-emerald-400/15 bg-emerald-400/10 px-3 py-2 text-xs font-medium text-emerald-300">
               Trusted Marketplace
             </div>
+
+            <Link
+              to={`${basePath}/notifications`}
+              className="relative flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 transition duration-300 hover:bg-white/10"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth="1.8"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M14.857 17H20l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5.143m5.714 0a3 3 0 11-5.714 0m5.714 0H9.143"
+                />
+              </svg>
+
+              {unreadCount > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                  {unreadCount}
+                </span>
+              )}
+            </Link>
 
             <div className="relative" ref={profileRef}>
               <button
@@ -258,19 +322,19 @@ export const UserNavbar = () => {
                   </div>
 
                   <Link
-                    to="/user/profile"
+                    to={`${basePath}/offers`}
                     onClick={() => setIsProfileOpen(false)}
                     className="block px-4 py-3 text-sm text-slate-200 transition hover:bg-white/5"
                   >
-                    Profile
+                    {role === "seller" ? "View Offers" : "My Offers"}
                   </Link>
 
                   <Link
-                    to="/user/offers"
+                    to={`${basePath}/notifications`}
                     onClick={() => setIsProfileOpen(false)}
                     className="block px-4 py-3 text-sm text-slate-200 transition hover:bg-white/5"
                   >
-                    My Offers
+                    Notifications
                   </Link>
 
                   <button
@@ -288,7 +352,7 @@ export const UserNavbar = () => {
             onClick={() => setIsOpen(!isOpen)}
             className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 transition hover:bg-white/10 md:hidden"
           >
-            <span className="text-lg">{isOpen ? "✕" : "☰"}</span>
+            <span className="text-lg">{isOpen ? "X" : "☰"}</span>
           </button>
         </div>
 
@@ -299,35 +363,47 @@ export const UserNavbar = () => {
         >
           <div className="space-y-2 px-4 py-4">
             <Link
-              to="/user"
+              to={basePath}
               onClick={() => setIsOpen(false)}
               className="block rounded-xl px-4 py-3 text-slate-200 transition hover:bg-white/5"
             >
               Home
             </Link>
 
-            <Link
-              to="/user/cars"
-              onClick={() => setIsOpen(false)}
-              className="block rounded-xl px-4 py-3 text-slate-200 transition hover:bg-white/5"
-            >
-              Cars
-            </Link>
+            {role !== "seller" && (
+              <Link
+                to="/user/cars"
+                onClick={() => setIsOpen(false)}
+                className="block rounded-xl px-4 py-3 text-slate-200 transition hover:bg-white/5"
+              >
+                Cars
+              </Link>
+            )}
 
             <Link
-              to="/user/offers"
+              to={`${basePath}/offers`}
               onClick={() => setIsOpen(false)}
               className="block rounded-xl px-4 py-3 text-slate-200 transition hover:bg-white/5"
             >
-              My Offers
+              {role === "seller" ? "View Offers" : "My Offers"}
             </Link>
 
+            {role === "seller" && (
+              <Link
+                to="/seller/my-listings"
+                onClick={() => setIsOpen(false)}
+                className="block rounded-xl px-4 py-3 text-slate-200 transition hover:bg-white/5"
+              >
+                My Listings
+              </Link>
+            )}
+
             <Link
-              to="/user/profile"
+              to={`${basePath}/notifications`}
               onClick={() => setIsOpen(false)}
               className="block rounded-xl px-4 py-3 text-slate-200 transition hover:bg-white/5"
             >
-              Profile
+              Notifications {unreadCount > 0 ? `(${unreadCount})` : ""}
             </Link>
 
             <button

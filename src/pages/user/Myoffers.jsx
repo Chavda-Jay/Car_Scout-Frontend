@@ -30,7 +30,7 @@ const MyOffers = () => {
 
   const handleBuyerDecision = async (id, status) => {
     try {
-      await API.put(`/offer/${id}`, { status });
+      await API.put(`/offer/${id}`, { status, actionBy: "buyer" });
 
       toast.success(`You ${status} the offer ✅`);
 
