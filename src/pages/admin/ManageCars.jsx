@@ -5,13 +5,23 @@ import { toast } from "react-toastify";
 const ManageCars = () => {
   const [cars, setCars] = useState([]);
   const [editCar, setEditCar] = useState(null);
+  const [inspectionModal, setInspectionModal] = useState(false);
+  const [selectedCar, setSelectedCar] = useState(null);
+  const [existingInspectionId, setExistingInspectionId] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const [inspectionForm, setInspectionForm] = useState({
+    report: "",
+    rating: "",
+    accidentHistory: "",
+    serviceHistory: "",
+  });
 
   const getCars = async () => {
     try {
       setLoading(true);
       const res = await API.get("/car/cars");
-      setCars(res.data.data);
+      setCars(res.data.data || []);
     } catch (err) {
       toast.error("Failed to load cars ❌");
     } finally {
@@ -52,6 +62,81 @@ const ManageCars = () => {
     }
   };
 
+  const openInspectionModal = async (car) => {
+    setSelectedCar(car);
+    setInspectionModal(true);
+    setExistingInspectionId(null);
+    setInspectionForm({
+      report: "",
+      rating: "",
+      accidentHistory: "",
+      serviceHistory: "",
+    });
+
+    try {
+      const res = await API.get(`/inspection/car/${car._id}`);
+      const data = res.data.data;
+
+      if (data) {
+        setExistingInspectionId(data._id);
+        setInspectionForm({
+          report: data.report || "",
+          rating: data.rating || "",
+          accidentHistory: data.accidentHistory || "",
+          serviceHistory: data.serviceHistory || "",
+        });
+      }
+    } catch (err) {
+      setExistingInspectionId(null);
+    }
+  };
+
+  const handleInspectionChange = (e) => {
+    setInspectionForm({
+      ...inspectionForm,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleInspectionSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!selectedCar?._id) {
+      toast.error("Car not selected ❌");
+      return;
+    }
+
+    if (!inspectionForm.report || !inspectionForm.rating) {
+      toast.warning("Report and rating are required ⚠️");
+      return;
+    }
+
+    try {
+      const payload = {
+        carId: selectedCar._id,
+        report: inspectionForm.report,
+        rating: Number(inspectionForm.rating),
+        accidentHistory: inspectionForm.accidentHistory,
+        serviceHistory: inspectionForm.serviceHistory,
+      };
+
+      if (existingInspectionId) {
+        await API.put(`/inspection/${existingInspectionId}`, payload);
+        toast.success("Inspection updated successfully ✅");
+      } else {
+        await API.post("/inspection", payload);
+        toast.success("Inspection added successfully ✅");
+      }
+
+      setInspectionModal(false);
+      setSelectedCar(null);
+      setExistingInspectionId(null);
+    } catch (err) {
+      console.log(err);
+      toast.error("Inspection save failed ❌");
+    }
+  };
+
   useEffect(() => {
     getCars();
   }, []);
@@ -65,7 +150,7 @@ const ManageCars = () => {
           </p>
           <h2 className="mt-2 text-3xl font-bold">Manage Cars</h2>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
-            View, update, and manage all listed cars through a clean and
+            View, update, inspect, and manage all listed cars through a clean and
             professional admin workspace.
           </p>
         </div>
@@ -94,10 +179,7 @@ const ManageCars = () => {
                 <tbody className="divide-y divide-white/10">
                   {cars.length > 0 ? (
                     cars.map((car) => (
-                      <tr
-                        key={car._id}
-                        className="transition hover:bg-white/5"
-                      >
+                      <tr key={car._id} className="transition hover:bg-white/5">
                         <td className="px-5 py-4 font-semibold text-white">
                           {car.brand}
                         </td>
@@ -106,22 +188,23 @@ const ManageCars = () => {
                         <td className="px-5 py-4 font-semibold text-emerald-300">
                           ₹{Number(car.price || 0).toLocaleString("en-IN")}
                         </td>
-                        <td className="px-5 py-4 text-slate-300">
-                          {car.mileage}
-                        </td>
-                        <td className="px-5 py-4 text-slate-300">
-                          {car.fuelType}
-                        </td>
-                        <td className="px-5 py-4 text-slate-300">
-                          {car.location}
-                        </td>
+                        <td className="px-5 py-4 text-slate-300">{car.mileage}</td>
+                        <td className="px-5 py-4 text-slate-300">{car.fuelType}</td>
+                        <td className="px-5 py-4 text-slate-300">{car.location}</td>
                         <td className="px-5 py-4">
-                          <div className="flex justify-center gap-2">
+                          <div className="flex flex-wrap justify-center gap-2">
                             <button
                               onClick={() => handleEdit(car)}
                               className="rounded-xl bg-cyan-500 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-cyan-400"
                             >
                               Edit
+                            </button>
+
+                            <button
+                              onClick={() => openInspectionModal(car)}
+                              className="rounded-xl bg-amber-400 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-amber-300"
+                            >
+                              Inspection
                             </button>
 
                             <button
@@ -171,7 +254,7 @@ const ManageCars = () => {
                   value={editCar.brand}
                   onChange={handleChange}
                   placeholder="Brand"
-                  className="rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-cyan-500/40"
+                  className="rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white outline-none focus:ring-2 focus:ring-cyan-500/40"
                 />
 
                 <input
@@ -179,7 +262,7 @@ const ManageCars = () => {
                   value={editCar.model}
                   onChange={handleChange}
                   placeholder="Model"
-                  className="rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-cyan-500/40"
+                  className="rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white outline-none focus:ring-2 focus:ring-cyan-500/40"
                 />
 
                 <input
@@ -187,7 +270,7 @@ const ManageCars = () => {
                   value={editCar.year}
                   onChange={handleChange}
                   placeholder="Year"
-                  className="rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-cyan-500/40"
+                  className="rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white outline-none focus:ring-2 focus:ring-cyan-500/40"
                 />
 
                 <input
@@ -195,7 +278,7 @@ const ManageCars = () => {
                   value={editCar.price}
                   onChange={handleChange}
                   placeholder="Price"
-                  className="rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-cyan-500/40"
+                  className="rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white outline-none focus:ring-2 focus:ring-cyan-500/40"
                 />
 
                 <input
@@ -203,7 +286,7 @@ const ManageCars = () => {
                   value={editCar.mileage}
                   onChange={handleChange}
                   placeholder="Mileage"
-                  className="rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-cyan-500/40"
+                  className="rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white outline-none focus:ring-2 focus:ring-cyan-500/40"
                 />
 
                 <input
@@ -211,7 +294,7 @@ const ManageCars = () => {
                   value={editCar.fuelType}
                   onChange={handleChange}
                   placeholder="Fuel Type"
-                  className="rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-cyan-500/40"
+                  className="rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white outline-none focus:ring-2 focus:ring-cyan-500/40"
                 />
 
                 <input
@@ -219,7 +302,7 @@ const ManageCars = () => {
                   value={editCar.location}
                   onChange={handleChange}
                   placeholder="Location"
-                  className="rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-cyan-500/40 md:col-span-2"
+                  className="rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white outline-none focus:ring-2 focus:ring-cyan-500/40 md:col-span-2"
                 />
 
                 <textarea
@@ -228,7 +311,7 @@ const ManageCars = () => {
                   onChange={handleChange}
                   placeholder="Description"
                   rows="5"
-                  className="rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-cyan-500/40 md:col-span-2"
+                  className="rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white outline-none focus:ring-2 focus:ring-cyan-500/40 md:col-span-2"
                 />
 
                 <div className="mt-2 flex gap-3 md:col-span-2">
@@ -242,6 +325,83 @@ const ManageCars = () => {
                   <button
                     type="button"
                     onClick={() => setEditCar(null)}
+                    className="rounded-xl bg-white/10 px-6 py-3 font-semibold text-white transition hover:bg-white/15"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {inspectionModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
+            <div className="w-full max-w-2xl rounded-3xl border border-white/10 bg-[#111827] p-6 shadow-2xl">
+              <div className="mb-6">
+                <p className="text-sm uppercase tracking-[0.2em] text-amber-300">
+                  Car Inspection
+                </p>
+                <h3 className="mt-2 text-2xl font-bold text-white">
+                  {existingInspectionId ? "Update Inspection Report" : "Add Inspection Report"}
+                </h3>
+                <p className="mt-2 text-sm text-slate-400">
+                  {selectedCar?.brand} {selectedCar?.model}
+                </p>
+              </div>
+
+              <form onSubmit={handleInspectionSubmit} className="space-y-4">
+                <textarea
+                  name="report"
+                  value={inspectionForm.report}
+                  onChange={handleInspectionChange}
+                  placeholder="Full inspection report"
+                  rows="4"
+                  className="w-full rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white outline-none focus:ring-2 focus:ring-amber-400/40"
+                />
+
+                <input
+                  type="number"
+                  min="1"
+                  max="5"
+                  name="rating"
+                  value={inspectionForm.rating}
+                  onChange={handleInspectionChange}
+                  placeholder="Rating (1-5)"
+                  className="w-full rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white outline-none focus:ring-2 focus:ring-amber-400/40"
+                />
+
+                <input
+                  name="accidentHistory"
+                  value={inspectionForm.accidentHistory}
+                  onChange={handleInspectionChange}
+                  placeholder="Accident History"
+                  className="w-full rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white outline-none focus:ring-2 focus:ring-amber-400/40"
+                />
+
+                <input
+                  name="serviceHistory"
+                  value={inspectionForm.serviceHistory}
+                  onChange={handleInspectionChange}
+                  placeholder="Service History"
+                  className="w-full rounded-2xl border border-white/10 bg-[#0f172a] p-3 text-white outline-none focus:ring-2 focus:ring-amber-400/40"
+                />
+
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="submit"
+                    className="rounded-xl bg-amber-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-amber-300"
+                  >
+                    {existingInspectionId ? "Update Inspection" : "Save Inspection"}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setInspectionModal(false);
+                      setSelectedCar(null);
+                      setExistingInspectionId(null);
+                    }}
                     className="rounded-xl bg-white/10 px-6 py-3 font-semibold text-white transition hover:bg-white/15"
                   >
                     Cancel

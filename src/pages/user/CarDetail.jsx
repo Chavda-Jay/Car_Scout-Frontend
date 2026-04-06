@@ -12,6 +12,7 @@ const CarDetails = () => {
   const { id } = useParams();
 
   const [car, setCar] = useState(null);
+  const [inspection, setInspection] = useState(null);
   const [showOfferModal, setShowOfferModal] = useState(false);
   const [showTestDriveModal, setShowTestDriveModal] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
@@ -26,20 +27,34 @@ const CarDetails = () => {
   const [testDriveLocation, setTestDriveLocation] = useState("");
   const [testDriveMessage, setTestDriveMessage] = useState("");
 
-  const getCarDetails = async () => {
+  const getInspectionDetails = async (carId) => {
     try {
-      const res = await API.get(`/car/${id}`);
-      setCar(res.data.data || res.data);
+      const res = await API.get(`/inspection/car/${carId}`);
+      setInspection(res.data.data || null);
     } catch (err) {
-      console.log(err);
-      toast.error("Failed to load car details");
-    } finally {
-      setLoading(false);
+      setInspection(null);
     }
   };
 
   useEffect(() => {
-    getCarDetails();
+    const loadData = async () => {
+      try {
+        const res = await API.get(`/car/${id}`);
+        const carData = res.data.data || res.data;
+        setCar(carData);
+
+        if (carData?._id) {
+          await getInspectionDetails(carData._id);
+        }
+      } catch (err) {
+        console.log(err);
+        toast.error("Failed to load car details");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
     window.scrollTo(0, 0);
   }, [id]);
 
@@ -241,11 +256,49 @@ const CarDetails = () => {
           </div>
         </div>
 
-        <div className="mt-10 rounded-2xl border border-white/10 bg-[#111827] p-6">
-          <h2 className="mb-2 text-xl font-bold">Description</h2>
-          <p className="leading-7 text-slate-300">
-            {car.description || "No description available"}
-          </p>
+        <div className="mt-10 grid gap-6 lg:grid-cols-2">
+          <div className="rounded-2xl border border-white/10 bg-[#111827] p-6">
+            <h2 className="mb-2 text-xl font-bold">Description</h2>
+            <p className="leading-7 text-slate-300">
+              {car.description || "No description available"}
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-[#111827] p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-xl font-bold">Inspection Report</h2>
+              {inspection?.rating && (
+                <div className="rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 text-sm font-semibold text-amber-300">
+                  ⭐ {inspection.rating}/5
+                </div>
+              )}
+            </div>
+
+            {inspection ? (
+              <div className="space-y-4">
+                <div className="rounded-xl border border-white/10 bg-[#0f172a] p-4">
+                  <p className="text-sm text-slate-500">Full Report</p>
+                  <p className="mt-2 leading-7 text-slate-300">{inspection.report}</p>
+                </div>
+
+                <div className="rounded-xl border border-white/10 bg-[#0f172a] p-4">
+                  <p className="text-sm text-slate-500">Accident History</p>
+                  <p className="mt-2 text-slate-300">{inspection.accidentHistory}</p>
+                </div>
+
+                <div className="rounded-xl border border-white/10 bg-[#0f172a] p-4">
+                  <p className="text-sm text-slate-500">Service History</p>
+                  <p className="mt-2 text-slate-300">{inspection.serviceHistory}</p>
+                </div>
+              </div>
+            ) : (
+              <div className="rounded-xl border border-dashed border-white/10 bg-[#0f172a] p-4">
+                <p className="text-slate-400">
+                  Inspection report not available yet for this car.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
