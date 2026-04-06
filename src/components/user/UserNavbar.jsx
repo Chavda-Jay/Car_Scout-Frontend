@@ -157,7 +157,6 @@ export const UserNavbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Poll unread notification count for navbar badge
   useEffect(() => {
     const fetchUnreadCount = async () => {
       try {
@@ -258,6 +257,13 @@ export const UserNavbar = () => {
               {role === "seller" ? "View Offers" : "My Offers"}
             </Link>
 
+            <Link
+              to={`${basePath}/testdrives`}
+              className={navClass(`${basePath}/testdrives`)}
+            >
+              {role === "seller" ? "Test Drives" : "My Test Drives"}
+            </Link>
+
             {role === "seller" && (
               <Link
                 to="/seller/my-listings"
@@ -330,6 +336,14 @@ export const UserNavbar = () => {
                   </Link>
 
                   <Link
+                    to={`${basePath}/testdrives`}
+                    onClick={() => setIsProfileOpen(false)}
+                    className="block px-4 py-3 text-sm text-slate-200 transition hover:bg-white/5"
+                  >
+                    {role === "seller" ? "Test Drives" : "My Test Drives"}
+                  </Link>
+
+                  <Link
                     to={`${basePath}/notifications`}
                     onClick={() => setIsProfileOpen(false)}
                     className="block px-4 py-3 text-sm text-slate-200 transition hover:bg-white/5"
@@ -386,6 +400,14 @@ export const UserNavbar = () => {
               className="block rounded-xl px-4 py-3 text-slate-200 transition hover:bg-white/5"
             >
               {role === "seller" ? "View Offers" : "My Offers"}
+            </Link>
+
+            <Link
+              to={`${basePath}/testdrives`}
+              onClick={() => setIsOpen(false)}
+              className="block rounded-xl px-4 py-3 text-slate-200 transition hover:bg-white/5"
+            >
+              {role === "seller" ? "Test Drives" : "My Test Drives"}
             </Link>
 
             {role === "seller" && (

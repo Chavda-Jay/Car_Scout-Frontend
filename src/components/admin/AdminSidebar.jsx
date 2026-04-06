@@ -11,6 +11,7 @@ import {
   FiGrid,
   FiFileText,
   FiTag,
+  FiCalendar,
 } from "react-icons/fi";
 import { FaCar, FaUserPlus } from "react-icons/fa";
 
@@ -41,6 +42,7 @@ export const AdminSidebar = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
     localStorage.removeItem("firstName");
+    localStorage.removeItem("user");
     navigate("/");
   };
 
@@ -215,6 +217,11 @@ export const AdminSidebar = () => {
           <NavLink to="/admin/offers" className={linkStyle}>
             <FiTag size={20} />
             {isOpen && <span>Offers</span>}
+          </NavLink>
+
+          <NavLink to="/admin/testdrives" className={linkStyle}>
+            <FiCalendar size={20} />
+            {isOpen && <span>Test Drives</span>}
           </NavLink>
 
           <NavLink to="/admin/inspection" className={linkStyle}>

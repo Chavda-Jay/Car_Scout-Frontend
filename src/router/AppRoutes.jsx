@@ -6,14 +6,13 @@ import Signup from "../components/Signup";
 import { UserNavbar } from "../components/user/UserNavbar";
 import { AdminSidebar } from "../components/admin/AdminSidebar";
 
-// USER PAGES
 import Home from "../pages/user/Home";
 import CarList from "../pages/user/CarList";
 import MyOffers from "../pages/user/Myoffers";
 import CarDetail from "../pages/user/CarDetail";
 import Notifications from "../pages/user/Notifications";
+import MyTestDrives from "../pages/user/MyTestDrives";
 
-// ADMIN PAGES
 import Dashboard from "../pages/admin/Dashboard";
 import AddCar from "../pages/admin/AddCar";
 import ManageCars from "../pages/admin/ManageCars";
@@ -21,11 +20,15 @@ import Offers from "../pages/admin/Offers";
 import Inspection from "../pages/admin/Inspection";
 import ManageUsers from "../pages/admin/ManageUsers";
 import AddUser from "../pages/admin/AddUser";
+import TestDrives from "../pages/admin/TestDrives";
+
 import { Forgotpassword } from "../components/ForgotPassword";
 import { ResetPassword } from "../components/ResetPassword";
+
 import SellerHome from "../pages/seller/SellerHome";
 import MyListings from "../pages/seller/MyListings";
 import SellerOffers from "../pages/seller/SellerOffers";
+import SellerTestDrives from "../pages/seller/SellerTestDrives";
 
 const router = createBrowserRouter([
   { path: "/", element: <Login /> },
@@ -41,7 +44,8 @@ const router = createBrowserRouter([
       { path: "cars", element: <CarList /> },
       { path: "offers", element: <MyOffers /> },
       { path: "car/:id", element: <CarDetail /> },
-      { path: "notifications", element: <Notifications /> }
+      { path: "notifications", element: <Notifications /> },
+      { path: "testdrives", element: <MyTestDrives /> }
     ]
   },
 
@@ -53,6 +57,7 @@ const router = createBrowserRouter([
       { path: "addcar", element: <AddCar /> },
       { path: "managecars", element: <ManageCars /> },
       { path: "offers", element: <Offers /> },
+      { path: "testdrives", element: <TestDrives /> },
       { path: "inspection", element: <Inspection /> },
       { path: "users", element: <ManageUsers /> },
       { path: "adduser", element: <AddUser /> }
@@ -67,7 +72,8 @@ const router = createBrowserRouter([
       { path: "addcar", element: <AddCar /> },
       { path: "offers", element: <SellerOffers /> },
       { path: "my-listings", element: <MyListings /> },
-      { path: "notifications", element: <Notifications /> }
+      { path: "notifications", element: <Notifications /> },
+      { path: "testdrives", element: <SellerTestDrives /> }
     ]
   }
 ]);

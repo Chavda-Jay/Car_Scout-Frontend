@@ -29,6 +29,14 @@ const SellerHome = () => {
       accent: "from-amber-500/20 to-amber-400/5",
       btn: "bg-amber-400 hover:bg-amber-300 text-slate-950",
     },
+    {
+      title: "Test Drive Requests",
+      desc: "Review buyer test drive bookings and manage requests smoothly.",
+      button: "View Requests",
+      onClick: () => navigate("/seller/testdrives"),
+      accent: "from-emerald-500/20 to-cyan-400/5",
+      btn: "bg-emerald-500 hover:bg-emerald-400 text-white",
+    },
   ];
 
   const stats = [
@@ -56,8 +64,8 @@ const SellerHome = () => {
                 </h1>
 
                 <p className="mt-4 max-w-2xl text-base leading-7 text-slate-300 sm:text-lg">
-                  Add cars, track offers, and manage your listings through a
-                  clean and professional seller workspace built for CarScout.
+                  Add cars, track offers, manage test drives, and handle your listings through a
+                  clean professional seller workspace built for CarScout.
                 </p>
 
                 <div className="mt-8 flex flex-wrap gap-4">
@@ -100,7 +108,7 @@ const SellerHome = () => {
             <h2 className="mt-2 text-3xl font-bold">Everything you need in one place</h2>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             {actionCards.map((item) => (
               <div
                 key={item.title}

@@ -12,20 +12,28 @@ const CarDetails = () => {
   const { id } = useParams();
 
   const [car, setCar] = useState(null);
-  const [showModal, setShowModal] = useState(false);
+  const [showOfferModal, setShowOfferModal] = useState(false);
+  const [showTestDriveModal, setShowTestDriveModal] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [loading, setLoading] = useState(true);
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
+
   const [price, setPrice] = useState("");
   const [message, setMessage] = useState("");
+
+  const [requestedDate, setRequestedDate] = useState("");
+  const [requestedTime, setRequestedTime] = useState("");
+  const [testDriveLocation, setTestDriveLocation] = useState("");
+  const [testDriveMessage, setTestDriveMessage] = useState("");
 
   const getCarDetails = async () => {
     try {
       const res = await API.get(`/car/${id}`);
       setCar(res.data.data || res.data);
-      setLoading(false);
     } catch (err) {
       console.log(err);
+      toast.error("Failed to load car details");
+    } finally {
       setLoading(false);
     }
   };
@@ -70,36 +78,85 @@ const CarDetails = () => {
       setSuccessMsg("Your offer has been sent successfully.");
       setPrice("");
       setMessage("");
-      setShowModal(false);
+      setShowOfferModal(false);
     } catch (err) {
+      console.log(err);
       toast.error("Offer Failed ❌");
     }
   };
 
-  if (loading)
-    return <p className="text-white text-center mt-10">Loading...</p>;
+  const handleBookTestDrive = async () => {
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-  if (!car)
-    return <p className="text-white text-center mt-10">Car not found</p>;
+    const buyerId = user._id;
+    const sellerId = car?.sellerId?._id;
+    const carId = car?._id;
+
+    if (!buyerId) {
+      toast.error("Login required ❌");
+      return;
+    }
+
+    if (!sellerId) {
+      toast.error("Seller not found ❌");
+      return;
+    }
+
+    if (!requestedDate || !requestedTime || !testDriveLocation) {
+      toast.warning("Please fill date, time and location ⚠️");
+      return;
+    }
+
+    try {
+      await API.post("/testdrive", {
+        buyerId,
+        sellerId,
+        carId,
+        requestedDate,
+        requestedTime,
+        location: testDriveLocation,
+        message: testDriveMessage,
+      });
+
+      toast.success("Test drive booked successfully ✅");
+      setSuccessMsg("Your test drive request has been sent successfully.");
+      setRequestedDate("");
+      setRequestedTime("");
+      setTestDriveLocation("");
+      setTestDriveMessage("");
+      setShowTestDriveModal(false);
+    } catch (err) {
+      console.log(err);
+      toast.error("Test drive booking failed ❌");
+    }
+  };
+
+  if (loading) {
+    return <p className="mt-10 text-center text-white">Loading...</p>;
+  }
+
+  if (!car) {
+    return <p className="mt-10 text-center text-white">Car not found</p>;
+  }
 
   return (
-    <div className="bg-[#0b1120] min-h-screen text-white p-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="grid md:grid-cols-2 gap-10">
+    <div className="min-h-screen bg-[#0b1120] p-6 text-white">
+      <div className="mx-auto max-w-7xl">
+        <div className="grid gap-10 md:grid-cols-2">
           <div>
             <Swiper
               spaceBetween={10}
               navigation={true}
               thumbs={{ swiper: thumbsSwiper }}
               modules={[Navigation, Thumbs]}
-              className="mb-4 rounded-2xl overflow-hidden border border-white/10 bg-[#111827]"
+              className="car-details-swiper mb-4 overflow-hidden rounded-2xl border border-white/10 bg-[#111827]"
             >
               {car.images?.map((img, index) => (
                 <SwiperSlide key={index}>
                   <img
                     src={img}
                     alt="car"
-                    className="w-full h-96 object-cover"
+                    className="h-96 w-full object-cover"
                   />
                 </SwiperSlide>
               ))}
@@ -118,15 +175,15 @@ const CarDetails = () => {
                   <img
                     src={img}
                     alt="thumb"
-                    className="w-full h-24 object-cover rounded-xl cursor-pointer border border-white/10"
+                    className="h-24 w-full cursor-pointer rounded-xl border border-white/10 object-cover"
                   />
                 </SwiperSlide>
               ))}
             </Swiper>
           </div>
 
-          <div className="bg-[#111827] p-6 rounded-2xl shadow-lg border border-white/10">
-            <h1 className="text-3xl font-bold mb-2">
+          <div className="rounded-2xl border border-white/10 bg-[#111827] p-6 shadow-lg">
+            <h1 className="mb-2 text-3xl font-bold">
               {car.brand} {car.model}
             </h1>
 
@@ -134,7 +191,7 @@ const CarDetails = () => {
               {car.year} • {car.fuelType} • {car.location}
             </p>
 
-            <p className="text-emerald-400 text-3xl font-bold mt-4">
+            <p className="mt-4 text-3xl font-bold text-emerald-400">
               ₹ {Number(car.price || 0).toLocaleString("en-IN")}
             </p>
 
@@ -145,58 +202,60 @@ const CarDetails = () => {
             )}
 
             <div className="mt-6 grid grid-cols-2 gap-4">
-              <div className="bg-[#0f172a] p-4 rounded-xl border border-white/10">
+              <div className="rounded-xl border border-white/10 bg-[#0f172a] p-4">
                 <p className="text-sm text-slate-500">Brand</p>
-                <p className="font-semibold mt-1">{car.brand}</p>
+                <p className="mt-1 font-semibold">{car.brand}</p>
               </div>
 
-              <div className="bg-[#0f172a] p-4 rounded-xl border border-white/10">
+              <div className="rounded-xl border border-white/10 bg-[#0f172a] p-4">
                 <p className="text-sm text-slate-500">Model</p>
-                <p className="font-semibold mt-1">{car.model}</p>
+                <p className="mt-1 font-semibold">{car.model}</p>
               </div>
 
-              <div className="bg-[#0f172a] p-4 rounded-xl border border-white/10">
+              <div className="rounded-xl border border-white/10 bg-[#0f172a] p-4">
                 <p className="text-sm text-slate-500">Year</p>
-                <p className="font-semibold mt-1">{car.year}</p>
+                <p className="mt-1 font-semibold">{car.year}</p>
               </div>
 
-              <div className="bg-[#0f172a] p-4 rounded-xl border border-white/10">
+              <div className="rounded-xl border border-white/10 bg-[#0f172a] p-4">
                 <p className="text-sm text-slate-500">Fuel</p>
-                <p className="font-semibold mt-1">{car.fuelType}</p>
+                <p className="mt-1 font-semibold">{car.fuelType}</p>
               </div>
             </div>
 
             <div className="mt-8 space-y-3">
               <button
-                onClick={() => setShowModal(true)}
-                className="w-full bg-cyan-500 py-3 rounded-xl hover:bg-cyan-400 font-semibold text-slate-950 transition"
+                onClick={() => setShowTestDriveModal(true)}
+                className="w-full rounded-xl bg-emerald-500 py-3 font-semibold transition hover:bg-emerald-400"
               >
-                Make Offer
+                Book Test Drive
               </button>
 
-              <button className="w-full bg-emerald-500 py-3 rounded-xl hover:bg-emerald-400 font-semibold transition">
-                Book Test Drive
+              <button
+                onClick={() => setShowOfferModal(true)}
+                className="w-full rounded-xl bg-cyan-500 py-3 font-semibold text-slate-950 transition hover:bg-cyan-400"
+              >
+                Make Offer
               </button>
             </div>
           </div>
         </div>
 
-        <div className="mt-10 bg-[#111827] p-6 rounded-2xl border border-white/10">
-          <h2 className="text-xl font-bold mb-2">Description</h2>
-          <p className="text-slate-300 leading-7">
+        <div className="mt-10 rounded-2xl border border-white/10 bg-[#111827] p-6">
+          <h2 className="mb-2 text-xl font-bold">Description</h2>
+          <p className="leading-7 text-slate-300">
             {car.description || "No description available"}
           </p>
         </div>
       </div>
 
-      {showModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50 px-4">
-          <div className="bg-[#111827] border border-white/10 p-6 rounded-2xl w-full max-w-md shadow-2xl">
-            <h2 className="text-2xl font-bold mb-1 text-center">
+      {showOfferModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#111827] p-6 shadow-2xl">
+            <h2 className="mb-1 text-center text-2xl font-bold">
               Make an Offer
             </h2>
-
-            <p className="text-slate-400 text-sm text-center mb-5">
+            <p className="mb-5 text-center text-sm text-slate-400">
               Negotiate your best price with seller
             </p>
 
@@ -207,7 +266,7 @@ const CarDetails = () => {
                 placeholder="₹ Enter amount"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
-                className="w-full mt-2 p-3 rounded-xl bg-[#0f172a] border border-white/10 focus:outline-none focus:ring-2 focus:ring-cyan-500/40 text-white"
+                className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f172a] p-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/40"
               />
             </div>
 
@@ -220,21 +279,94 @@ const CarDetails = () => {
                 placeholder="Write something to seller..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                className="w-full mt-2 p-3 rounded-xl bg-[#0f172a] border border-white/10 focus:outline-none focus:ring-2 focus:ring-cyan-500/40 text-white"
+                className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f172a] p-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/40"
               />
             </div>
 
             <div className="flex gap-3">
               <button
                 onClick={handleSubmitOffer}
-                className="w-full bg-cyan-500 hover:bg-cyan-400 transition py-3 rounded-xl font-semibold text-slate-950"
+                className="w-full rounded-xl bg-cyan-500 py-3 font-semibold text-slate-950 transition hover:bg-cyan-400"
               >
                 Submit Offer
               </button>
 
               <button
-                onClick={() => setShowModal(false)}
-                className="w-full bg-white/10 hover:bg-white/15 transition py-3 rounded-xl font-semibold"
+                onClick={() => setShowOfferModal(false)}
+                className="w-full rounded-xl bg-white/10 py-3 font-semibold transition hover:bg-white/15"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showTestDriveModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#111827] p-6 shadow-2xl">
+            <h2 className="mb-1 text-center text-2xl font-bold">
+              Book Test Drive
+            </h2>
+            <p className="mb-5 text-center text-sm text-slate-400">
+              Schedule your preferred date and time with seller
+            </p>
+
+            <div className="mb-4">
+              <label className="text-sm text-slate-400">Preferred Date</label>
+              <input
+                type="date"
+                value={requestedDate}
+                onChange={(e) => setRequestedDate(e.target.value)}
+                className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f172a] p-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="text-sm text-slate-400">Preferred Time</label>
+              <input
+                type="time"
+                value={requestedTime}
+                onChange={(e) => setRequestedTime(e.target.value)}
+                className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f172a] p-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="text-sm text-slate-400">Location</label>
+              <input
+                type="text"
+                placeholder="Enter meeting location"
+                value={testDriveLocation}
+                onChange={(e) => setTestDriveLocation(e.target.value)}
+                className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f172a] p-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+              />
+            </div>
+
+            <div className="mb-5">
+              <label className="text-sm text-slate-400">
+                Message (Optional)
+              </label>
+              <textarea
+                rows="3"
+                placeholder="Write a note for seller..."
+                value={testDriveMessage}
+                onChange={(e) => setTestDriveMessage(e.target.value)}
+                className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f172a] p-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={handleBookTestDrive}
+                className="w-full rounded-xl bg-emerald-500 py-3 font-semibold text-white transition hover:bg-emerald-400"
+              >
+                Confirm Booking
+              </button>
+
+              <button
+                onClick={() => setShowTestDriveModal(false)}
+                className="w-full rounded-xl bg-white/10 py-3 font-semibold transition hover:bg-white/15"
               >
                 Cancel
               </button>
