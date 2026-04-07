@@ -30,6 +30,7 @@ import MyListings from "../pages/seller/MyListings";
 import SellerOffers from "../pages/seller/SellerOffers";
 import SellerTestDrives from "../pages/seller/SellerTestDrives";
 import AddCarWizard from "../pages/seller/AddCarWizard";
+import Profile from "../pages/user/Profile";
 
 const router = createBrowserRouter([
   { path: "/", element: <Login /> },
@@ -46,7 +47,8 @@ const router = createBrowserRouter([
       { path: "offers", element: <MyOffers /> },
       { path: "car/:id", element: <CarDetail /> },
       { path: "notifications", element: <Notifications /> },
-      { path: "testdrives", element: <MyTestDrives /> }
+      { path: "testdrives", element: <MyTestDrives /> },
+      { path: "profile", element : <Profile/>}
     ]
   },
 
@@ -74,7 +76,8 @@ const router = createBrowserRouter([
       { path: "offers", element: <SellerOffers /> },
       { path: "my-listings", element: <MyListings /> },
       { path: "notifications", element: <Notifications /> },
-      { path: "testdrives", element: <SellerTestDrives /> }
+      { path: "testdrives", element: <SellerTestDrives /> },
+      { path: "profile", element : <Profile/>}
     ]
   }
 ]);

@@ -135,14 +135,15 @@ export const UserNavbar = () => {
   const location = useLocation();
   const profileRef = useRef(null);
 
-  const userName = localStorage.getItem("firstName") || "User";
+  const user = JSON.parse(localStorage.getItem("user")) || {};
+  const userName = localStorage.getItem("firstName") || user?.firstName || "User";
   const role = localStorage.getItem("role");
-  const user = JSON.parse(localStorage.getItem("user"));
 
-  const initials = useMemo(
-    () => userName.slice(0, 2).toUpperCase(),
-    [userName]
-  );
+  const initials = useMemo(() => {
+    const first = user?.firstName?.[0] || userName?.[0] || "";
+    const last = user?.lastName?.[0] || "";
+    return `${first}${last}`.toUpperCase() || "U";
+  }, [user, userName]);
 
   const basePath = role === "seller" ? "/seller" : "/user";
 
@@ -310,9 +311,17 @@ export const UserNavbar = () => {
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
                 className="flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-2 py-2 pr-4 transition duration-300 hover:bg-white/10"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cyan-400 text-sm font-bold text-slate-950 shadow-lg shadow-cyan-500/20">
-                  {initials}
-                </div>
+                {user?.profilePic ? (
+                  <img
+                    src={user.profilePic}
+                    alt="profile"
+                    className="h-10 w-10 rounded-full border border-white/10 object-cover"
+                  />
+                ) : (
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cyan-400 text-sm font-bold text-slate-950 shadow-lg shadow-cyan-500/20">
+                    {initials}
+                  </div>
+                )}
 
                 <div className="text-left">
                   <p className="text-sm font-semibold text-white">{userName}</p>
@@ -326,6 +335,14 @@ export const UserNavbar = () => {
                     <p className="text-sm font-semibold text-white">{userName}</p>
                     <p className="text-xs text-slate-400">carscout user panel</p>
                   </div>
+
+                  <Link
+                    to={`${basePath}/profile`}
+                    onClick={() => setIsProfileOpen(false)}
+                    className="block px-4 py-3 text-sm text-slate-200 transition hover:bg-white/5"
+                  >
+                    Profile
+                  </Link>
 
                   <Link
                     to={`${basePath}/offers`}
@@ -372,7 +389,7 @@ export const UserNavbar = () => {
 
         <div
           className={`overflow-hidden border-t border-white/10 bg-[#0f172a]/95 backdrop-blur-xl transition-all duration-300 md:hidden ${
-            isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+            isOpen ? "max-h-[520px] opacity-100" : "max-h-0 opacity-0"
           }`}
         >
           <div className="space-y-2 px-4 py-4">
@@ -393,6 +410,14 @@ export const UserNavbar = () => {
                 Cars
               </Link>
             )}
+
+            <Link
+              to={`${basePath}/profile`}
+              onClick={() => setIsOpen(false)}
+              className="block rounded-xl px-4 py-3 text-slate-200 transition hover:bg-white/5"
+            >
+              Profile
+            </Link>
 
             <Link
               to={`${basePath}/offers`}
