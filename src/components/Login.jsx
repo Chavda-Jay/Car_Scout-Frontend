@@ -35,6 +35,7 @@ const Login = () => {
 
       localStorage.setItem("user", JSON.stringify(finalUser));
       localStorage.setItem("role", finalUser.role);
+      localStorage.setItem("firstName", finalUser.firstName);
       localStorage.setItem("token", res.data.token);
 
       toast.success("Login Success ✅");
@@ -42,7 +43,7 @@ const Login = () => {
       if (finalUser.role === "user" || finalUser.role === "USER") {
         navigate("/user");
       } else if (finalUser.role === "admin" || finalUser.role === "ADMIN") {
-        navigate("/admin");
+        navigate("/admin/dashboard");
       } else if (finalUser.role === "seller" || finalUser.role === "SELLER") {
         navigate("/seller");
       } else {

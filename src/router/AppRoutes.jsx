@@ -29,6 +29,7 @@ import SellerHome from "../pages/seller/SellerHome";
 import MyListings from "../pages/seller/MyListings";
 import SellerOffers from "../pages/seller/SellerOffers";
 import SellerTestDrives from "../pages/seller/SellerTestDrives";
+import AddCarWizard from "../pages/seller/AddCarWizard";
 
 const router = createBrowserRouter([
   { path: "/", element: <Login /> },
@@ -69,7 +70,7 @@ const router = createBrowserRouter([
     element: <UserNavbar />,
     children: [
       { index: true, element: <SellerHome /> },
-      { path: "addcar", element: <AddCar /> },
+      { path: "addcar", element: <AddCarWizard /> },
       { path: "offers", element: <SellerOffers /> },
       { path: "my-listings", element: <MyListings /> },
       { path: "notifications", element: <Notifications /> },

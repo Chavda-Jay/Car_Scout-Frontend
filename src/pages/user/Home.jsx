@@ -161,7 +161,6 @@
 
 // export default Home;
 
-
 import React, { useEffect, useMemo, useState } from "react";
 import API from "../../api/Api";
 import CarCard from "../../components/user/CarCard";
@@ -180,7 +179,7 @@ const Home = () => {
     "Safari",
     "Automatic",
     "Petrol",
-    "Under 5 Lakh",
+    "Hyundai",
   ];
 
   const brands = ["Maruti", "Hyundai", "Honda", "Tata", "Mahindra", "BMW"];
@@ -188,19 +187,43 @@ const Home = () => {
   const highlights = [
     {
       title: "Verified Cars",
-      desc: "Carefully listed cars with trusted details.",
+      desc: "Trusted listings with cleaner presentation and better clarity.",
     },
     {
-      title: "Transparent Pricing",
-      desc: "Better clarity on pricing and real offers.",
+      title: "Transparent Offers",
+      desc: "Track real offers and seller responses without confusion.",
     },
     {
       title: "Inspection Support",
-      desc: "Know the condition before you decide.",
+      desc: "Know the condition before moving ahead.",
     },
     {
-      title: "Easy Process",
-      desc: "From search to deal, everything feels simpler.",
+      title: "Test Drive Ready",
+      desc: "Book visits and move forward with more confidence.",
+    },
+  ];
+
+  const sellSteps = [
+    {
+      step: "01",
+      title: "Create Listing",
+      desc: "Use the guided seller flow to add your car with the right details and images.",
+      image:
+        "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=900&q=80",
+    },
+    {
+      step: "02",
+      title: "Receive Buyer Interest",
+      desc: "Track offers, responses, and test drive requests through a cleaner seller experience.",
+      image:
+        "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=900&q=80",
+    },
+    {
+      step: "03",
+      title: "Close With Confidence",
+      desc: "Move from listing to final deal with better clarity and a more professional flow.",
+      image:
+        "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?auto=format&fit=crop&w=900&q=80",
     },
   ];
 
@@ -220,6 +243,29 @@ const Home = () => {
     getCars();
   }, []);
 
+  const marketStats = [
+    {
+      value: `${cars.length}+`,
+      label: "Live Listings",
+      desc: "Fresh verified cars ready to explore",
+    },
+    {
+      value: "98%",
+      label: "Trusted Flow",
+      desc: "Confidence-first marketplace experience",
+    },
+    {
+      value: "24/7",
+      label: "Smart Discovery",
+      desc: "Browse, compare, and act anytime",
+    },
+    {
+      value: "Easy",
+      label: "Buyer Journey",
+      desc: "From shortlist to decision in one place",
+    },
+  ];
+
   const filteredCars = useMemo(() => {
     if (!search.trim()) return cars;
 
@@ -234,9 +280,28 @@ const Home = () => {
     });
   }, [cars, search]);
 
-  const featuredCars = useMemo(() => cars.slice(0, 6), [cars]);
+  const sortedByRecent = useMemo(() => {
+    return [...cars].sort((a, b) => {
+      const aDate = new Date(a?.createdAt || 0).getTime();
+      const bDate = new Date(b?.createdAt || 0).getTime();
+      return bDate - aDate;
+    });
+  }, [cars]);
 
-  const handleSellCar = () => {
+  const featuredCars = useMemo(() => {
+    return cars.slice(0, 3);
+  }, [cars]);
+
+  const latestCars = useMemo(() => {
+    if (search.trim()) return filteredCars;
+
+    const featuredIds = new Set(featuredCars.map((car) => car._id));
+    const recent = sortedByRecent.filter((car) => !featuredIds.has(car._id));
+
+    return recent.length > 0 ? recent.slice(0, 6) : sortedByRecent.slice(0, 6);
+  }, [search, filteredCars, sortedByRecent, featuredCars]);
+
+  const handleSellerAccess = (path = "/seller") => {
     const role = localStorage.getItem("role");
 
     if (role !== "seller") {
@@ -244,11 +309,11 @@ const Home = () => {
       return;
     }
 
-    navigate("/seller");
+    navigate(path);
   };
 
   const handleSearch = () => {
-    const section = document.getElementById("featured-cars");
+    const section = document.getElementById("latest-cars");
     if (section) {
       section.scrollIntoView({ behavior: "smooth" });
     }
@@ -264,33 +329,32 @@ const Home = () => {
         </div>
 
         <section className="relative px-4 pt-6 sm:px-6 lg:px-10">
-          <div className="relative overflow-hidden rounded-3xl border border-white/10 shadow-[0_25px_80px_rgba(0,0,0,0.35)]">
+          <div className="relative overflow-hidden rounded-[32px] border border-white/10 shadow-[0_25px_80px_rgba(0,0,0,0.35)]">
             <img
               src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1600&q=80"
               alt="Hero car"
-              className="absolute inset-0 h-full w-full object-cover transition duration-700 hover:scale-105"
+              className="absolute inset-0 h-full w-full object-cover"
             />
             <div className="absolute inset-0 bg-black/70" />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0b1120]/95 via-[#0b1120]/80 to-[#0b1120]/30" />
-            <div className="absolute -right-16 top-10 h-52 w-52 rounded-full border border-cyan-400/20 bg-cyan-400/10 blur-2xl" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0b1120]/95 via-[#0b1120]/82 to-[#0b1120]/35" />
 
             <div className="relative max-w-7xl px-6 py-16 sm:px-8 lg:px-12 lg:py-24">
-              <div className="grid items-center gap-10 lg:grid-cols-[1.2fr_0.8fr]">
+              <div className="grid items-center gap-10 lg:grid-cols-[1.15fr_0.85fr]">
                 <div className="max-w-3xl animate-[fadeIn_0.8s_ease-in-out]">
                   <span className="inline-flex rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-sm text-cyan-200 backdrop-blur">
                     Trusted used car marketplace
                   </span>
 
                   <h1 className="mt-6 text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">
-                    Buy your next car
+                    Explore premium cars
                     <span className="block bg-gradient-to-r from-cyan-300 to-white bg-clip-text text-transparent">
-                      with confidence
+                      with more confidence
                     </span>
                   </h1>
 
-                  <p className="mt-4 max-w-2xl text-base leading-7 text-slate-300 sm:text-lg">
-                    Explore verified cars, compare trusted listings, and enjoy a
-                    smoother buying and selling experience with CarScout.
+                  <p className="mt-5 max-w-2xl text-base leading-7 text-slate-300 sm:text-lg">
+                    Search verified listings, compare better options, and move from
+                    discovery to decision through a cleaner marketplace experience.
                   </p>
 
                   <div className="mt-8 rounded-2xl border border-white/10 bg-[#0f172a]/90 p-3 shadow-2xl backdrop-blur">
@@ -304,7 +368,7 @@ const Home = () => {
                       />
                       <button
                         onClick={handleSearch}
-                        className="rounded-xl bg-cyan-500 px-6 py-3 font-semibold text-slate-950 transition duration-300 hover:-translate-y-0.5 hover:bg-cyan-400"
+                        className="rounded-xl bg-cyan-500 px-6 py-3 font-semibold text-slate-950 transition duration-300 hover:bg-cyan-400"
                       >
                         Search
                       </button>
@@ -315,7 +379,7 @@ const Home = () => {
                         <button
                           key={item}
                           onClick={() => setSearch(item)}
-                          className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200 transition duration-300 hover:-translate-y-0.5 hover:border-cyan-400/40 hover:bg-cyan-400/10"
+                          className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200 transition duration-300 hover:border-cyan-400/40 hover:bg-cyan-400/10"
                         >
                           {item}
                         </button>
@@ -325,43 +389,55 @@ const Home = () => {
 
                   <div className="mt-8 flex flex-wrap gap-4">
                     <button
-                      onClick={() => navigate("/carlist")}
-                      className="rounded-xl bg-amber-400 px-6 py-3 font-semibold text-slate-950 transition duration-300 hover:-translate-y-0.5 hover:bg-amber-300"
+                      onClick={() => navigate("/user/cars")}
+                      className="rounded-xl bg-amber-400 px-6 py-3 font-semibold text-slate-950 transition duration-300 hover:bg-amber-300"
                     >
-                      Buy Car
+                      Browse Cars
                     </button>
 
                     <button
-                      onClick={handleSellCar}
-                      className="rounded-xl bg-emerald-500 px-6 py-3 font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-emerald-400"
+                      onClick={() => handleSellerAccess("/seller")}
+                      className="rounded-xl bg-emerald-500 px-6 py-3 font-semibold text-white transition duration-300 hover:bg-emerald-400"
                     >
-                      Sell Car
+                      Sell Your Car
                     </button>
                   </div>
                 </div>
 
                 <div className="grid gap-4">
-                  <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur transition duration-300 hover:-translate-y-1 hover:bg-white/10">
+                  <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur transition duration-300 hover:bg-white/10">
                     <p className="text-sm uppercase tracking-[0.2em] text-cyan-300">
                       CarScout Promise
                     </p>
-                    <h3 className="mt-3 text-2xl font-bold">Simple, trusted and premium</h3>
+                    <h3 className="mt-3 text-2xl font-bold">
+                      Simple, trusted and premium
+                    </h3>
                     <p className="mt-3 text-sm leading-7 text-slate-300">
-                      Discover cars with a cleaner experience, modern visuals and
-                      trustworthy listings built for buyers and sellers.
+                      Better design, smoother discovery, and a more confident way
+                      to browse and shortlist used cars online.
                     </p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur transition duration-300 hover:-translate-y-1">
+                    <div className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur">
                       <p className="text-2xl font-bold text-cyan-300">{cars.length}+</p>
                       <p className="mt-2 text-sm text-slate-400">Cars Live</p>
                     </div>
 
-                    <div className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur transition duration-300 hover:-translate-y-1">
+                    <div className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur">
                       <p className="text-2xl font-bold text-emerald-300">24/7</p>
-                      <p className="mt-2 text-sm text-slate-400">Easy Browsing</p>
+                      <p className="mt-2 text-sm text-slate-400">Search Ready</p>
                     </div>
+                  </div>
+
+                  <div className="rounded-3xl border border-cyan-400/15 bg-gradient-to-br from-cyan-500/10 to-emerald-500/10 p-5">
+                    <p className="text-sm uppercase tracking-[0.2em] text-cyan-300">
+                      Marketplace Focus
+                    </p>
+                    <p className="mt-3 text-sm leading-7 text-slate-300">
+                      Verified cars, transparent offers, inspections, and test drives
+                      built into one modern experience.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -369,13 +445,33 @@ const Home = () => {
           </div>
         </section>
 
-        <section className="relative px-4 py-10 sm:px-6 lg:px-10">
+        <section className="relative px-4 py-8 sm:px-6 lg:px-10">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {marketStats.map((item, index) => (
+              <div
+                key={item.label}
+                className="group rounded-[26px] border border-white/10 bg-[#111827]/90 p-5 shadow-[0_10px_30px_rgba(0,0,0,0.18)] backdrop-blur transition duration-300 hover:-translate-y-1 hover:border-cyan-400/20"
+                style={{ animation: `fadeUp 0.45s ease ${index * 0.08}s both` }}
+              >
+                <p className="text-3xl font-bold text-white">{item.value}</p>
+                <p className="mt-2 text-sm uppercase tracking-[0.18em] text-cyan-300">
+                  {item.label}
+                </p>
+                <p className="mt-3 text-sm leading-6 text-slate-400">
+                  {item.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="relative px-4 py-8 sm:px-6 lg:px-10">
           <div className="grid gap-4 md:grid-cols-4">
             {highlights.map((item, index) => (
               <div
                 key={item.title}
                 className="group rounded-2xl border border-white/10 bg-[#111827] p-5 transition duration-300 hover:-translate-y-1 hover:border-cyan-400/20 hover:shadow-[0_10px_30px_rgba(0,0,0,0.25)]"
-                style={{ animation: `fadeUp 0.5s ease ${index * 0.1}s both` }}
+                style={{ animation: `fadeUp 0.5s ease ${index * 0.08}s both` }}
               >
                 <div className="mb-4 h-1 w-12 rounded-full bg-cyan-400 transition-all duration-300 group-hover:w-20" />
                 <h3 className="text-lg font-semibold">{item.title}</h3>
@@ -385,31 +481,35 @@ const Home = () => {
           </div>
         </section>
 
-        <section id="featured-cars" className="relative px-4 py-6 sm:px-6 lg:px-10">
-          <div className="mb-6 flex items-center justify-between">
+        <section className="relative px-4 py-6 sm:px-6 lg:px-10">
+          <div className="mb-6 flex items-end justify-between">
             <div>
               <p className="text-sm uppercase tracking-[0.2em] text-cyan-300">
-                Featured Cars
+                Popular Listings
               </p>
-              <h2 className="mt-2 text-3xl font-bold">Popular listings</h2>
+              <h2 className="mt-2 text-3xl font-bold">Buyer favourites</h2>
+              <p className="mt-2 max-w-2xl text-sm text-slate-400">
+                A refined shortlist of standout cars designed to feel premium
+                without overwhelming the page.
+              </p>
             </div>
 
             <button
-              onClick={() => navigate("/carlist")}
+              onClick={() => navigate("/user/cars")}
               className="text-sm font-medium text-cyan-300 transition hover:text-cyan-200"
             >
               View All →
             </button>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-1 gap-7 sm:grid-cols-2 xl:grid-cols-3">
             {loading ? (
-              [...Array(6)].map((_, index) => (
+              [...Array(3)].map((_, index) => (
                 <div
                   key={index}
                   className="overflow-hidden rounded-3xl border border-white/10 bg-[#111827] animate-pulse"
                 >
-                  <div className="h-52 bg-slate-800" />
+                  <div className="h-48 bg-slate-800" />
                   <div className="space-y-3 p-5">
                     <div className="h-5 w-2/3 rounded bg-slate-800" />
                     <div className="h-4 w-1/2 rounded bg-slate-800" />
@@ -506,8 +606,8 @@ const Home = () => {
               </p>
 
               <button
-                onClick={handleSellCar}
-                className="relative mt-8 rounded-xl bg-emerald-500 px-6 py-3 font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-emerald-400"
+                onClick={() => handleSellerAccess("/seller")}
+                className="relative mt-8 rounded-xl bg-emerald-500 px-6 py-3 font-semibold text-white transition duration-300 hover:bg-emerald-400"
               >
                 Start Selling
               </button>
@@ -518,24 +618,78 @@ const Home = () => {
         <section className="relative px-4 py-10 sm:px-6 lg:px-10">
           <div className="mb-6 flex items-end justify-between">
             <div>
-              <p className="text-sm uppercase tracking-[0.2em] text-cyan-300">
-                Latest Cars
+              <p className="text-sm uppercase tracking-[0.2em] text-emerald-300">
+                Seller Journey
               </p>
-              <h2 className="mt-2 text-3xl font-bold">Recently added cars</h2>
+              <h2 className="mt-2 text-3xl font-bold">Sell your car in 3 smooth steps</h2>
+              <p className="mt-2 max-w-2xl text-sm text-slate-400">
+                A guided and visual seller experience that makes listing feel more
+                premium and straightforward.
+              </p>
+            </div>
+            <button
+              onClick={() => handleSellerAccess("/seller/addcar")}
+              className="text-sm font-medium text-emerald-300 transition hover:text-emerald-200"
+            >
+              Start Now →
+            </button>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            {sellSteps.map((item) => (
+              <div
+                key={item.title}
+                className="group overflow-hidden rounded-[30px] border border-white/10 bg-[#111827] shadow-[0_12px_30px_rgba(0,0,0,0.22)] transition duration-300 hover:-translate-y-1 hover:border-emerald-400/20"
+              >
+                <div className="relative h-56 overflow-hidden">
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#020617]/90 via-black/20 to-transparent" />
+                  <div className="absolute left-4 top-4 rounded-full border border-white/10 bg-black/45 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur">
+                    Step {item.step}
+                  </div>
+                </div>
+
+                <div className="p-5">
+                  <h3 className="text-xl font-bold text-white">{item.title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-slate-400">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section id="latest-cars" className="relative px-4 py-10 sm:px-6 lg:px-10">
+          <div className="mb-6 flex items-end justify-between">
+            <div>
+              <p className="text-sm uppercase tracking-[0.2em] text-cyan-300">
+                Latest Collection
+              </p>
+              <h2 className="mt-2 text-3xl font-bold">
+                {search.trim() ? "Search results" : "Recently added cars"}
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm text-slate-400">
+                {search.trim()
+                  ? "Showing cars that match your current search."
+                  : "Only the latest added listings appear here so buyers can quickly spot new arrivals."}
+              </p>
             </div>
             <p className="hidden text-sm text-slate-400 md:block">
               Fresh arrivals for smart buyers
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-1 gap-7 sm:grid-cols-2 xl:grid-cols-3">
             {loading ? (
               [...Array(6)].map((_, index) => (
                 <div
                   key={index}
                   className="overflow-hidden rounded-3xl border border-white/10 bg-[#111827] animate-pulse"
                 >
-                  <div className="h-52 bg-slate-800" />
+                  <div className="h-48 bg-slate-800" />
                   <div className="space-y-3 p-5">
                     <div className="h-5 w-2/3 rounded bg-slate-800" />
                     <div className="h-4 w-1/2 rounded bg-slate-800" />
@@ -543,50 +697,150 @@ const Home = () => {
                   </div>
                 </div>
               ))
-            ) : filteredCars.length > 0 ? (
-              filteredCars.map((car) => <CarCard key={car._id} car={car} />)
+            ) : latestCars.length > 0 ? (
+              latestCars.map((car) => <CarCard key={car._id} car={car} />)
             ) : (
-              <p className="text-red-400">No cars found</p>
+              <p className="text-red-400">No recent cars found</p>
             )}
           </div>
         </section>
 
-        <footer className="mt-10 border-t border-white/10 bg-[#0a0f1d] px-4 py-10 sm:px-6 lg:px-10">
-          <div className="grid gap-8 md:grid-cols-3">
-            <div>
-              <h3 className="text-2xl font-bold text-white">CarScout</h3>
-              <p className="mt-3 leading-7 text-slate-400">
-                Buy and sell used cars with a clean, trusted, and modern
-                experience.
-              </p>
-            </div>
+        <section className="relative px-4 pb-6 sm:px-6 lg:px-10">
+          <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-gradient-to-br from-[#0f172a] via-[#111827] to-[#0b1120] p-8 shadow-[0_18px_45px_rgba(0,0,0,0.28)] lg:p-10">
+            <div className="absolute -left-10 top-0 h-40 w-40 rounded-full bg-cyan-400/10 blur-3xl" />
+            <div className="absolute -right-10 bottom-0 h-40 w-40 rounded-full bg-emerald-400/10 blur-3xl" />
 
-            <div>
-              <h3 className="text-lg font-semibold text-white">Quick Links</h3>
-              <ul className="mt-3 space-y-2 text-slate-400">
-                <li className="cursor-pointer transition hover:text-cyan-300">Home</li>
-                <li
-                  className="cursor-pointer transition hover:text-cyan-300"
-                  onClick={() => navigate("/carlist")}
+            <div className="relative grid items-center gap-8 lg:grid-cols-[1.2fr_0.8fr]">
+              <div>
+                <p className="text-sm uppercase tracking-[0.24em] text-cyan-300">
+                  Ready To Move Forward
+                </p>
+                <h2 className="mt-3 text-3xl font-bold sm:text-4xl">
+                  Find the right car or list yours with more confidence
+                </h2>
+                <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
+                  CarScout brings verified listings, smoother offers, test drives,
+                  and cleaner presentation into one modern used-car marketplace.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-4 sm:flex-row lg:flex-col lg:items-stretch">
+                <button
+                  onClick={() => navigate("/user/cars")}
+                  className="rounded-2xl bg-cyan-500 px-6 py-3.5 font-semibold text-slate-950 transition duration-300 hover:bg-cyan-400"
                 >
-                  Cars
-                </li>
-                <li className="cursor-pointer transition hover:text-cyan-300">
-                  My Offers
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-semibold text-white">Contact</h3>
-              <p className="mt-3 text-slate-400">support@carscout.com</p>
-              <p className="mt-2 text-slate-400">+91 9876543210</p>
+                  Explore Cars
+                </button>
+                <button
+                  onClick={() => handleSellerAccess("/seller/addcar")}
+                  className="rounded-2xl bg-emerald-500 px-6 py-3.5 font-semibold text-white transition duration-300 hover:bg-emerald-400"
+                >
+                  List Your Car
+                </button>
+              </div>
             </div>
           </div>
+        </section>
 
-          <p className="mt-8 text-center text-sm text-slate-500">
-            © 2026 CarScout. All rights reserved.
-          </p>
+        <footer className="mt-12 border-t border-white/10 bg-[#09111f] px-4 py-12 sm:px-6 lg:px-10">
+          <div className="mx-auto max-w-7xl">
+            <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
+              <div>
+                <h3 className="text-2xl font-bold text-white">CarScout</h3>
+                <p className="mt-4 leading-7 text-slate-400">
+                  A cleaner, trusted, and modern used-car marketplace for buyers
+                  and sellers who want more confidence at every step.
+                </p>
+                <div className="mt-5 flex gap-3 text-sm text-slate-400">
+                  <span className="rounded-full border border-white/10 px-3 py-1.5">
+                    Verified Listings
+                  </span>
+                  <span className="rounded-full border border-white/10 px-3 py-1.5">
+                    Easy Offers
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold text-white">Marketplace</h3>
+                <ul className="mt-4 space-y-3 text-slate-400">
+                  <li
+                    className="cursor-pointer transition hover:text-cyan-300"
+                    onClick={() => navigate("/user")}
+                  >
+                    Home
+                  </li>
+                  <li
+                    className="cursor-pointer transition hover:text-cyan-300"
+                    onClick={() => navigate("/user/cars")}
+                  >
+                    Browse Cars
+                  </li>
+                  <li
+                    className="cursor-pointer transition hover:text-cyan-300"
+                    onClick={() => navigate("/user/offers")}
+                  >
+                    My Offers
+                  </li>
+                  <li
+                    className="cursor-pointer transition hover:text-cyan-300"
+                    onClick={() => navigate("/user/testdrives")}
+                  >
+                    Test Drives
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold text-white">For Sellers</h3>
+                <ul className="mt-4 space-y-3 text-slate-400">
+                  <li
+                    className="cursor-pointer transition hover:text-cyan-300"
+                    onClick={() => handleSellerAccess("/seller")}
+                  >
+                    Start Selling
+                  </li>
+                  <li
+                    className="cursor-pointer transition hover:text-cyan-300"
+                    onClick={() => handleSellerAccess("/seller/my-listings")}
+                  >
+                    My Listings
+                  </li>
+                  <li
+                    className="cursor-pointer transition hover:text-cyan-300"
+                    onClick={() => handleSellerAccess("/seller/offers")}
+                  >
+                    Seller Offers
+                  </li>
+                  <li
+                    className="cursor-pointer transition hover:text-cyan-300"
+                    onClick={() => handleSellerAccess("/seller/addcar")}
+                  >
+                    Add Listing
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold text-white">Support</h3>
+                <ul className="mt-4 space-y-3 text-slate-400">
+                  <li>support@carscout.com</li>
+                  <li>+91 9876543210</li>
+                  <li>Mon - Sat, 10:00 AM to 7:00 PM</li>
+                  <li>Ahmedabad, Gujarat, India</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="mt-10 flex flex-col gap-4 border-t border-white/10 pt-6 text-sm text-slate-500 md:flex-row md:items-center md:justify-between">
+              <p>© 2026 CarScout. All rights reserved.</p>
+              <div className="flex flex-wrap gap-4">
+                <span className="transition hover:text-cyan-300">Privacy Policy</span>
+                <span className="transition hover:text-cyan-300">Terms of Service</span>
+                <span className="transition hover:text-cyan-300">Contact Us</span>
+              </div>
+            </div>
+          </div>
         </footer>
       </div>
 

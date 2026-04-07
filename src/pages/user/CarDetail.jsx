@@ -398,7 +398,7 @@ const CarDetails = () => {
 
             <div className="mb-5">
               <label className="text-sm text-slate-400">
-                Message (Optional)
+                Message
               </label>
               <textarea
                 rows="3"

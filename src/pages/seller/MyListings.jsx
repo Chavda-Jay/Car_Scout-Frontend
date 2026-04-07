@@ -12,9 +12,10 @@ const MyListings = () => {
   const getMyCars = async () => {
     try {
       const res = await API.get(`/car/user/${user._id}`);
-      setCars(res.data.data);
+      setCars(res.data.data || []);
     } catch (err) {
       console.log(err);
+      toast.error("Failed to load listings ❌");
     }
   };
 
@@ -23,23 +24,6 @@ const MyListings = () => {
       getMyCars();
     }
   }, []);
-
-  const handleDelete = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this car?"
-    );
-
-    if (!confirmDelete) return;
-
-    try {
-      await API.delete(`/car/${id}`);
-      toast.success("Car Deleted Successfully ");
-      getMyCars();
-    } catch (err) {
-      console.log(err);
-      toast.error("Delete Failed ");
-    }
-  };
 
   const handleUpdate = async (e) => {
     e.preventDefault();
@@ -52,13 +36,15 @@ const MyListings = () => {
           key !== "newImages" &&
           key !== "images" &&
           key !== "_id" &&
-          key !== "sellerId"
+          key !== "sellerId" &&
+          key !== "__v" &&
+          key !== "createdAt"
         ) {
           formData.append(key, editCar[key]);
         }
       }
 
-      if (editCar.newImages) {
+      if (editCar.newImages && editCar.newImages.length > 0) {
         for (let i = 0; i < editCar.newImages.length; i++) {
           formData.append("images", editCar.newImages[i]);
         }
@@ -66,12 +52,12 @@ const MyListings = () => {
 
       await API.put(`/car/${editCar._id}`, formData);
 
-      toast.success("Car Updated with images");
+      toast.success("Car Updated Successfully ✅");
       setEditCar(null);
       getMyCars();
     } catch (err) {
       console.log(err);
-      toast.error("Update Failed ");
+      toast.error("Update Failed ❌");
     }
   };
 
@@ -284,7 +270,28 @@ const MyListings = () => {
 
               <div className="md:col-span-2">
                 <label className="mb-2 block text-sm text-slate-300">
-                  Upload Images
+                  Existing Images
+                </label>
+
+                {editCar?.images?.length > 0 ? (
+                  <div className="flex flex-wrap gap-3">
+                    {editCar.images.map((img, index) => (
+                      <img
+                        key={index}
+                        src={img}
+                        alt="existing"
+                        className="h-20 w-20 rounded-xl border border-white/10 object-cover"
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-slate-500">No existing images</p>
+                )}
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="mb-2 mt-4 block text-sm text-slate-300">
+                  Upload New Images
                 </label>
 
                 <label className="flex cursor-pointer items-center justify-center rounded-2xl border border-dashed border-white/15 bg-[#0f172a] p-4 text-slate-300 transition hover:border-cyan-400/30 hover:bg-[#132033]">
@@ -299,16 +306,23 @@ const MyListings = () => {
                   />
                 </label>
 
-                {editCar?.newImages && (
-                  <div className="mt-4 flex flex-wrap gap-3">
-                    {Array.from(editCar.newImages).map((file, index) => (
-                      <img
-                        key={index}
-                        src={URL.createObjectURL(file)}
-                        alt="preview"
-                        className="h-20 w-20 rounded-xl border border-white/10 object-cover"
-                      />
-                    ))}
+                <p className="mt-2 text-xs text-slate-500">
+                  New uploaded images will be added along with the existing ones.
+                </p>
+
+                {editCar?.newImages && editCar.newImages.length > 0 && (
+                  <div className="mt-4">
+                    <p className="mb-2 text-sm text-slate-300">New Image Preview</p>
+                    <div className="flex flex-wrap gap-3">
+                      {Array.from(editCar.newImages).map((file, index) => (
+                        <img
+                          key={index}
+                          src={URL.createObjectURL(file)}
+                          alt="preview"
+                          className="h-20 w-20 rounded-xl border border-white/10 object-cover"
+                        />
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
@@ -347,11 +361,11 @@ const MyListings = () => {
                   onClick={async () => {
                     try {
                       await API.delete(`/car/${deleteId}`);
-                      toast.success("Car Deleted Successfully ");
+                      toast.success("Car Deleted Successfully ✅");
                       setDeleteId(null);
                       getMyCars();
                     } catch (err) {
-                      toast.error("Delete Failed ");
+                      toast.error("Delete Failed ❌");
                     }
                   }}
                   className="rounded-xl bg-red-500 px-5 py-2.5 font-semibold text-white transition hover:bg-red-600"

@@ -22,6 +22,38 @@ const TestDrives = () => {
     getAllTestDrives();
   }, []);
 
+  const handleStatusChange = async (id, status) => {
+    try {
+      await API.put(`/testdrive/${id}`, {
+        status,
+        actionBy: "admin",
+      });
+
+      toast.success(`Test drive ${status} successfully ✅`);
+      getAllTestDrives();
+    } catch (err) {
+      console.log(err);
+      toast.error("Failed to update test drive ❌");
+    }
+  };
+
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this test drive request?"
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+      await API.delete(`/testdrive/${id}`);
+      toast.success("Test drive deleted successfully 🗑️");
+      getAllTestDrives();
+    } catch (err) {
+      console.log(err);
+      toast.error("Failed to delete test drive ❌");
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen text-white">
@@ -39,7 +71,7 @@ const TestDrives = () => {
           </p>
           <h1 className="mt-2 text-3xl font-bold">All Test Drives</h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
-            Monitor all buyer test drive requests across the CarScout platform.
+            Monitor, update, and manage all buyer test drive requests across the CarScout platform.
           </p>
         </div>
 
@@ -142,6 +174,26 @@ const TestDrives = () => {
                         </p>
                       </div>
                     )}
+                  </div>
+
+                  <div className="mt-5 space-y-3">
+                    <select
+                      value={item.status}
+                      onChange={(e) => handleStatusChange(item._id, e.target.value)}
+                      className="w-full rounded-xl border border-white/10 bg-[#0f172a] px-4 py-3 text-sm text-white outline-none focus:ring-2 focus:ring-cyan-500/40"
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="accepted">Accepted</option>
+                      <option value="rejected">Rejected</option>
+                      <option value="completed">Completed</option>
+                    </select>
+
+                    <button
+                      onClick={() => handleDelete(item._id)}
+                      className="w-full rounded-xl bg-red-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-red-600"
+                    >
+                      Delete Test Drive
+                    </button>
                   </div>
                 </div>
               );

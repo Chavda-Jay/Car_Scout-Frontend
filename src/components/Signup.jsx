@@ -15,17 +15,31 @@ const Signup = () => {
   const navigate = useNavigate();
   const password = watch("password");
 
-  const submitHandler = async (data) => {
-    try {
-      const res = await axios.post("http://localhost:3800/user/register", data);
-      if (res.status === 201) {
-        toast.success("User Registered Successfully");
-        navigate("/");
-      }
-    } catch (err) {
-      toast.error(err.response.data.message);
+  // const submitHandler = async (data) => {
+  //   try {
+  //     const res = await axios.post("http://localhost:3800/user/register", data);
+  //     if (res.status === 201) {
+  //       toast.success("User Registered Successfully");
+  //       navigate("/");
+  //     }
+  //   } catch (err) {
+  //     toast.error(err.response.data.message);
+  //   }
+  // };
+
+const submitHandler = async (data) => {
+  try {
+    const res = await axios.post("http://localhost:3800/user/register", data);
+
+    if (res.status === 200 || res.status === 201) {
+      toast.success("User Registered Successfully");
+      navigate("/");
     }
-  };
+  } catch (err) {
+    console.log(err);
+    toast.error(err.response?.data?.message || "Signup failed");
+  }
+};
 
   return (
     <div
