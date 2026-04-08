@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import API from "../../api/Api";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -26,6 +26,20 @@ const CarDetails = () => {
   const [requestedTime, setRequestedTime] = useState("");
   const [testDriveLocation, setTestDriveLocation] = useState("");
   const [testDriveMessage, setTestDriveMessage] = useState("");
+
+  const dateInputRef = useRef(null);
+  const timeInputRef = useRef(null);
+
+  const openNativePicker = (ref) => {
+    if (!ref?.current) return;
+
+    if (typeof ref.current.showPicker === "function") {
+      ref.current.showPicker();
+    } else {
+      ref.current.focus();
+      ref.current.click();
+    }
+  };
 
   const getInspectionDetails = async (carId) => {
     try {
@@ -278,17 +292,23 @@ const CarDetails = () => {
               <div className="space-y-4">
                 <div className="rounded-xl border border-white/10 bg-[#0f172a] p-4">
                   <p className="text-sm text-slate-500">Full Report</p>
-                  <p className="mt-2 leading-7 text-slate-300">{inspection.report}</p>
+                  <p className="mt-2 leading-7 text-slate-300">
+                    {inspection.report}
+                  </p>
                 </div>
 
                 <div className="rounded-xl border border-white/10 bg-[#0f172a] p-4">
                   <p className="text-sm text-slate-500">Accident History</p>
-                  <p className="mt-2 text-slate-300">{inspection.accidentHistory}</p>
+                  <p className="mt-2 text-slate-300">
+                    {inspection.accidentHistory}
+                  </p>
                 </div>
 
                 <div className="rounded-xl border border-white/10 bg-[#0f172a] p-4">
                   <p className="text-sm text-slate-500">Service History</p>
-                  <p className="mt-2 text-slate-300">{inspection.serviceHistory}</p>
+                  <p className="mt-2 text-slate-300">
+                    {inspection.serviceHistory}
+                  </p>
                 </div>
               </div>
             ) : (
@@ -367,22 +387,49 @@ const CarDetails = () => {
 
             <div className="mb-4">
               <label className="text-sm text-slate-400">Preferred Date</label>
-              <input
-                type="date"
-                value={requestedDate}
-                onChange={(e) => setRequestedDate(e.target.value)}
-                className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f172a] p-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
-              />
+              <div
+                onClick={() => openNativePicker(dateInputRef)}
+                className="mt-2 flex items-center justify-between rounded-xl border border-white/10 bg-[#0f172a] px-3 py-3 transition hover:border-emerald-400/40"
+              >
+                <input
+                  ref={dateInputRef}
+                  type="date"
+                  min={new Date().toISOString().split("T")[0]}
+                  value={requestedDate}
+                  onChange={(e) => setRequestedDate(e.target.value)}
+                  className="w-full bg-transparent text-white outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => openNativePicker(dateInputRef)}
+                  className="ml-3 text-lg"
+                >
+                  📅
+                </button>
+              </div>
             </div>
 
             <div className="mb-4">
               <label className="text-sm text-slate-400">Preferred Time</label>
-              <input
-                type="time"
-                value={requestedTime}
-                onChange={(e) => setRequestedTime(e.target.value)}
-                className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f172a] p-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
-              />
+              <div
+                onClick={() => openNativePicker(timeInputRef)}
+                className="mt-2 flex items-center justify-between rounded-xl border border-white/10 bg-[#0f172a] px-3 py-3 transition hover:border-emerald-400/40"
+              >
+                <input
+                  ref={timeInputRef}
+                  type="time"
+                  value={requestedTime}
+                  onChange={(e) => setRequestedTime(e.target.value)}
+                  className="w-full bg-transparent text-white outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => openNativePicker(timeInputRef)}
+                  className="ml-3 text-lg"
+                >
+                  ⏰
+                </button>
+              </div>
             </div>
 
             <div className="mb-4">
@@ -397,9 +444,7 @@ const CarDetails = () => {
             </div>
 
             <div className="mb-5">
-              <label className="text-sm text-slate-400">
-                Message
-              </label>
+              <label className="text-sm text-slate-400">Message</label>
               <textarea
                 rows="3"
                 placeholder="Write a note for seller..."

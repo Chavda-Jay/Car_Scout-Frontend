@@ -49,7 +49,7 @@
 //               type="text"
 //               placeholder="Search Car"
 //               value={search}
-//               onChange={(e) => setSearch(e.target.value)} 
+//               onChange={(e) => setSearch(e.target.value)}
 //               className="w-64 md:w-96 px-4 py-3 rounded-l-lg bg-gray-800 text-white placeholder-gray-400 border border-gray-700 focus:outline-none focus:border-blue-500"
 //             />
 //             <button className="bg-blue-600 px-6 py-3 rounded-r-lg hover:bg-blue-700 text-white">
@@ -206,24 +206,47 @@ const Home = () => {
   const sellSteps = [
     {
       step: "01",
-      title: "Create Listing",
-      desc: "Use the guided seller flow to add your car with the right details and images.",
+      title: "Add Your Car",
+      desc: "Create your listing in minutes with the guided seller flow, complete car details, and quality images.",
       image:
-        "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=900&q=80",
+        "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=900&q=80",
+      accent: "from-emerald-400/20 to-emerald-500/5",
+      badge: "bg-emerald-400 text-slate-950",
+      iconWrap: "bg-emerald-400/15 text-emerald-300",
+      icon: "↑",
     },
     {
       step: "02",
-      title: "Receive Buyer Interest",
-      desc: "Track offers, responses, and test drive requests through a cleaner seller experience.",
+      title: "Car Inspection",
+      desc: "Build buyer trust with inspection support and clearer condition visibility before the deal moves ahead.",
       image:
-        "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=900&q=80",
+        "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=900&q=80",
+      accent: "from-cyan-400/20 to-cyan-500/5",
+      badge: "bg-cyan-400 text-slate-950",
+      iconWrap: "bg-cyan-400/15 text-cyan-300",
+      icon: "✓",
     },
     {
       step: "03",
-      title: "Close With Confidence",
-      desc: "Move from listing to final deal with better clarity and a more professional flow.",
+      title: "Book Test Drive",
+      desc: "Interested buyers can schedule test drives smoothly, helping both sides move forward with confidence.",
       image:
-        "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?auto=format&fit=crop&w=900&q=80",
+        "https://images.unsplash.com/photo-1485291571150-772bcfc10da5?auto=format&fit=crop&w=900&q=80",
+      accent: "from-amber-400/20 to-amber-500/5",
+      badge: "bg-amber-400 text-slate-950",
+      iconWrap: "bg-amber-400/15 text-amber-300",
+      icon: "◷",
+    },
+    {
+      step: "04",
+      title: "Close the Deal",
+      desc: "Receive offers, respond professionally, and finalize your sale through a smoother marketplace experience.",
+      image:
+        "https://images.unsplash.com/photo-1556742502-ec7c0e9f34b1?auto=format&fit=crop&w=900&q=80",
+      accent: "from-rose-400/20 to-rose-500/5",
+      badge: "bg-rose-400 text-slate-950",
+      iconWrap: "bg-rose-400/15 text-rose-300",
+      icon: "⇄",
     },
   ];
 
@@ -353,8 +376,9 @@ const Home = () => {
                   </h1>
 
                   <p className="mt-5 max-w-2xl text-base leading-7 text-slate-300 sm:text-lg">
-                    Search verified listings, compare better options, and move from
-                    discovery to decision through a cleaner marketplace experience.
+                    Search verified listings, compare better options, and move
+                    from discovery to decision through a cleaner marketplace
+                    experience.
                   </p>
 
                   <div className="mt-8 rounded-2xl border border-white/10 bg-[#0f172a]/90 p-3 shadow-2xl backdrop-blur">
@@ -413,20 +437,26 @@ const Home = () => {
                       Simple, trusted and premium
                     </h3>
                     <p className="mt-3 text-sm leading-7 text-slate-300">
-                      Better design, smoother discovery, and a more confident way
-                      to browse and shortlist used cars online.
+                      Better design, smoother discovery, and a more confident
+                      way to browse and shortlist used cars online.
                     </p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur">
-                      <p className="text-2xl font-bold text-cyan-300">{cars.length}+</p>
+                      <p className="text-2xl font-bold text-cyan-300">
+                        {cars.length}+
+                      </p>
                       <p className="mt-2 text-sm text-slate-400">Cars Live</p>
                     </div>
 
                     <div className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur">
-                      <p className="text-2xl font-bold text-emerald-300">24/7</p>
-                      <p className="mt-2 text-sm text-slate-400">Search Ready</p>
+                      <p className="text-2xl font-bold text-emerald-300">
+                        24/7
+                      </p>
+                      <p className="mt-2 text-sm text-slate-400">
+                        Search Ready
+                      </p>
                     </div>
                   </div>
 
@@ -435,8 +465,8 @@ const Home = () => {
                       Marketplace Focus
                     </p>
                     <p className="mt-3 text-sm leading-7 text-slate-300">
-                      Verified cars, transparent offers, inspections, and test drives
-                      built into one modern experience.
+                      Verified cars, transparent offers, inspections, and test
+                      drives built into one modern experience.
                     </p>
                   </div>
                 </div>
@@ -532,7 +562,9 @@ const Home = () => {
                 <p className="text-sm uppercase tracking-[0.2em] text-amber-300">
                   Browse by Brand
                 </p>
-                <h2 className="mt-2 text-3xl font-bold">Choose your preferred brand</h2>
+                <h2 className="mt-2 text-3xl font-bold">
+                  Choose your preferred brand
+                </h2>
               </div>
               <p className="hidden text-sm text-slate-400 md:block">
                 Trusted brands, smarter search
@@ -545,7 +577,9 @@ const Home = () => {
                   key={brand}
                   onClick={() => setSearch(brand)}
                   className="rounded-2xl border border-white/10 bg-[#0f172a] px-4 py-5 text-center font-medium text-slate-200 transition duration-300 hover:-translate-y-1 hover:border-cyan-400/40 hover:bg-cyan-400/10"
-                  style={{ animation: `fadeUp 0.45s ease ${index * 0.08}s both` }}
+                  style={{
+                    animation: `fadeUp 0.45s ease ${index * 0.08}s both`,
+                  }}
                 >
                   {brand}
                 </button>
@@ -565,7 +599,8 @@ const Home = () => {
               </h2>
               <p className="mt-4 leading-7 text-slate-400">
                 CarScout is built to make car buying and selling feel more
-                reliable, modern, and easy to navigate for both buyers and sellers.
+                reliable, modern, and easy to navigate for both buyers and
+                sellers.
               </p>
 
               <div className="mt-6 space-y-4">
@@ -615,54 +650,119 @@ const Home = () => {
           </div>
         </section>
 
-        <section className="relative px-4 py-10 sm:px-6 lg:px-10">
-          <div className="mb-6 flex items-end justify-between">
-            <div>
-              <p className="text-sm uppercase tracking-[0.2em] text-emerald-300">
-                Seller Journey
-              </p>
-              <h2 className="mt-2 text-3xl font-bold">Sell your car in 3 smooth steps</h2>
-              <p className="mt-2 max-w-2xl text-sm text-slate-400">
-                A guided and visual seller experience that makes listing feel more
-                premium and straightforward.
+        <section className="relative px-4 py-12 sm:px-6 lg:px-10">
+          <div className="relative overflow-hidden rounded-[34px] border border-white/10 bg-[#111827] p-6 shadow-[0_18px_45px_rgba(0,0,0,0.24)] lg:p-8">
+            <div className="absolute -left-10 top-0 h-40 w-40 rounded-full bg-emerald-400/10 blur-3xl" />
+            <div className="absolute right-0 top-0 h-40 w-40 rounded-full bg-cyan-400/10 blur-3xl" />
+
+            <div className="relative text-center">
+              <span className="inline-flex rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-emerald-300">
+                How It Works
+              </span>
+
+              <h2 className="mt-5 text-3xl font-bold sm:text-4xl lg:text-5xl">
+                Sell your car in 4 easy steps
+              </h2>
+
+              <p className="mx-auto mt-4 max-w-3xl text-sm leading-7 text-slate-400 sm:text-base">
+                List your car, build trust through inspection support, connect
+                with serious buyers, and move toward the best deal through a
+                cleaner seller experience.
               </p>
             </div>
-            <button
-              onClick={() => handleSellerAccess("/seller/addcar")}
-              className="text-sm font-medium text-emerald-300 transition hover:text-emerald-200"
-            >
-              Start Now →
-            </button>
-          </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
-            {sellSteps.map((item) => (
-              <div
-                key={item.title}
-                className="group overflow-hidden rounded-[30px] border border-white/10 bg-[#111827] shadow-[0_12px_30px_rgba(0,0,0,0.22)] transition duration-300 hover:-translate-y-1 hover:border-emerald-400/20"
-              >
-                <div className="relative h-56 overflow-hidden">
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#020617]/90 via-black/20 to-transparent" />
-                  <div className="absolute left-4 top-4 rounded-full border border-white/10 bg-black/45 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur">
-                    Step {item.step}
+            <div className="relative mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+              {sellSteps.map((item, index) => (
+                <div key={item.title} className="relative">
+                  <div className="group overflow-hidden rounded-[28px] border border-white/10 bg-[#0f172a] shadow-[0_12px_30px_rgba(0,0,0,0.18)] transition duration-300 hover:-translate-y-1 hover:border-white/20">
+                    <div className="relative h-52 overflow-hidden">
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/25 to-transparent" />
+                      <div
+                        className={`absolute inset-x-0 top-0 h-24 bg-gradient-to-b ${item.accent}`}
+                      />
+                      <div
+                        className={`absolute left-4 top-4 flex h-11 w-11 items-center justify-center rounded-full text-sm font-bold shadow-lg ${item.badge}`}
+                      >
+                        {item.step}
+                      </div>
+                    </div>
+
+                    <div className="relative px-5 pb-6 pt-8 text-center">
+                      <div
+                        className={`mx-auto -mt-14 flex h-16 w-16 items-center justify-center rounded-full border border-white/10 text-2xl font-bold shadow-[0_10px_25px_rgba(0,0,0,0.25)] ${item.iconWrap}`}
+                      >
+                        {item.icon}
+                      </div>
+
+                      <h3 className="mt-5 text-xl font-bold text-white">
+                        {item.title}
+                      </h3>
+
+                      <p className="mt-3 text-sm leading-7 text-slate-400">
+                        {item.desc}
+                      </p>
+                    </div>
                   </div>
-                </div>
 
-                <div className="p-5">
-                  <h3 className="text-xl font-bold text-white">{item.title}</h3>
-                  <p className="mt-3 text-sm leading-7 text-slate-400">{item.desc}</p>
+                  {index < sellSteps.length - 1 && (
+                    <div className="absolute -right-4 top-[42%] hidden xl:flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-[#111827] text-slate-500 shadow-[0_8px_20px_rgba(0,0,0,0.18)]">
+                      →
+                    </div>
+                  )}
                 </div>
+              ))}
+            </div>
+
+            <div className="relative mt-10 grid gap-4 rounded-[28px] border border-emerald-400/10 bg-gradient-to-r from-emerald-400/10 via-white/5 to-cyan-400/10 p-5 md:grid-cols-3">
+              <div className="rounded-2xl bg-[#0f172a]/80 p-4">
+                <p className="text-sm font-semibold text-white">
+                  100% Verified Flow
+                </p>
+                <p className="mt-2 text-sm leading-6 text-slate-400">
+                  Build stronger trust with cleaner listings and
+                  inspection-backed confidence.
+                </p>
               </div>
-            ))}
+
+              <div className="rounded-2xl bg-[#0f172a]/80 p-4">
+                <p className="text-sm font-semibold text-white">Save Time</p>
+                <p className="mt-2 text-sm leading-6 text-slate-400">
+                  A guided seller journey keeps listing, offers, and buyer
+                  activity easier to manage.
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-[#0f172a]/80 p-4">
+                <p className="text-sm font-semibold text-white">
+                  Better Offers
+                </p>
+                <p className="mt-2 text-sm leading-6 text-slate-400">
+                  Reach serious buyers and move toward better value with a more
+                  professional experience.
+                </p>
+              </div>
+            </div>
+
+            <div className="relative mt-8 flex justify-center">
+              <button
+                onClick={() => handleSellerAccess("/seller/addcar")}
+                className="rounded-2xl bg-emerald-500 px-7 py-3.5 font-semibold text-white transition duration-300 hover:bg-emerald-400"
+              >
+                Start Selling Now
+              </button>
+            </div>
           </div>
         </section>
 
-        <section id="latest-cars" className="relative px-4 py-10 sm:px-6 lg:px-10">
+        <section
+          id="latest-cars"
+          className="relative px-4 py-10 sm:px-6 lg:px-10"
+        >
           <div className="mb-6 flex items-end justify-between">
             <div>
               <p className="text-sm uppercase tracking-[0.2em] text-cyan-300">
@@ -719,8 +819,9 @@ const Home = () => {
                   Find the right car or list yours with more confidence
                 </h2>
                 <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
-                  CarScout brings verified listings, smoother offers, test drives,
-                  and cleaner presentation into one modern used-car marketplace.
+                  CarScout brings verified listings, smoother offers, test
+                  drives, and cleaner presentation into one modern used-car
+                  marketplace.
                 </p>
               </div>
 
@@ -762,7 +863,9 @@ const Home = () => {
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold text-white">Marketplace</h3>
+                <h3 className="text-lg font-semibold text-white">
+                  Marketplace
+                </h3>
                 <ul className="mt-4 space-y-3 text-slate-400">
                   <li
                     className="cursor-pointer transition hover:text-cyan-300"
@@ -792,7 +895,9 @@ const Home = () => {
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold text-white">For Sellers</h3>
+                <h3 className="text-lg font-semibold text-white">
+                  For Sellers
+                </h3>
                 <ul className="mt-4 space-y-3 text-slate-400">
                   <li
                     className="cursor-pointer transition hover:text-cyan-300"
@@ -835,9 +940,15 @@ const Home = () => {
             <div className="mt-10 flex flex-col gap-4 border-t border-white/10 pt-6 text-sm text-slate-500 md:flex-row md:items-center md:justify-between">
               <p>© 2026 CarScout. All rights reserved.</p>
               <div className="flex flex-wrap gap-4">
-                <span className="transition hover:text-cyan-300">Privacy Policy</span>
-                <span className="transition hover:text-cyan-300">Terms of Service</span>
-                <span className="transition hover:text-cyan-300">Contact Us</span>
+                <span className="transition hover:text-cyan-300">
+                  Privacy Policy
+                </span>
+                <span className="transition hover:text-cyan-300">
+                  Terms of Service
+                </span>
+                <span className="transition hover:text-cyan-300">
+                  Contact Us
+                </span>
               </div>
             </div>
           </div>
