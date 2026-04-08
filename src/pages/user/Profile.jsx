@@ -16,6 +16,14 @@ const Profile = () => {
     return `${first}${last}`.toUpperCase() || "U";
   }, [user]);
 
+  const syncUser = (updatedUser) => {
+    setUser(updatedUser);
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+    localStorage.setItem("firstName", updatedUser.firstName);
+    localStorage.setItem("role", updatedUser.role || role);
+    window.dispatchEvent(new Event("profile-updated"));
+  };
+
   const handleUpload = async () => {
     try {
       if (!file) {
@@ -35,11 +43,7 @@ const Profile = () => {
       });
 
       const updatedUser = res.data.data;
-
-      setUser(updatedUser);
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-      localStorage.setItem("firstName", updatedUser.firstName);
-      localStorage.setItem("role", updatedUser.role || role);
+      syncUser(updatedUser);
 
       toast.success("Profile picture updated successfully");
       setFile(null);
@@ -58,10 +62,7 @@ const Profile = () => {
       const res = await API.put(`/user/remove-profile-pic/${user._id}`);
       const updatedUser = res.data.data;
 
-      setUser(updatedUser);
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-      localStorage.setItem("firstName", updatedUser.firstName);
-      localStorage.setItem("role", updatedUser.role || role);
+      syncUser(updatedUser);
 
       toast.success("Profile picture removed successfully");
       setFile(null);

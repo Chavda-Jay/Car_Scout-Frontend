@@ -1,9 +1,8 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
   FiHome,
   FiUsers,
-  FiSettings,
   FiLogOut,
   FiMenu,
   FiChevronDown,
@@ -12,6 +11,7 @@ import {
   FiFileText,
   FiTag,
   FiCalendar,
+  FiUser,
 } from "react-icons/fi";
 import { FaCar, FaUserPlus } from "react-icons/fa";
 
@@ -21,14 +21,45 @@ export const AdminSidebar = () => {
     cars: true,
     users: false,
   });
+  const [adminUser, setAdminUser] = useState(
+    JSON.parse(localStorage.getItem("user")) || {}
+  );
 
   const navigate = useNavigate();
+  const role = localStorage.getItem("role");
 
-  const adminName = localStorage.getItem("firstName") || "Admin";
-  const initials = useMemo(
-    () => adminName.slice(0, 2).toUpperCase(),
-    [adminName]
-  );
+  const adminName =
+    `${adminUser?.firstName || ""} ${adminUser?.lastName || ""}`.trim() ||
+    localStorage.getItem("firstName") ||
+    "Admin";
+
+  const initials = useMemo(() => {
+    const first = adminUser?.firstName?.[0] || adminName?.[0] || "";
+    const last = adminUser?.lastName?.[0] || "";
+    return `${first}${last}`.toUpperCase() || "AD";
+  }, [adminUser, adminName]);
+
+  useEffect(() => {
+    if (role !== "admin") {
+      navigate("/");
+    }
+  }, [role, navigate]);
+
+  useEffect(() => {
+    const syncAdminUser = () => {
+      const latestUser = JSON.parse(localStorage.getItem("user")) || {};
+      setAdminUser(latestUser);
+    };
+
+    syncAdminUser();
+    window.addEventListener("profile-updated", syncAdminUser);
+    window.addEventListener("storage", syncAdminUser);
+
+    return () => {
+      window.removeEventListener("profile-updated", syncAdminUser);
+      window.removeEventListener("storage", syncAdminUser);
+    };
+  }, []);
 
   const toggleMenu = (menu) => {
     if (!isOpen) return;
@@ -148,10 +179,44 @@ export const AdminSidebar = () => {
           )}
         </div>
 
+        {isOpen && (
+          <div className="px-4 pt-4">
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
+              <div className="flex items-center gap-3">
+                {adminUser?.profilePic ? (
+                  <img
+                    src={adminUser.profilePic}
+                    alt="admin"
+                    className="h-12 w-12 rounded-full border border-white/10 object-cover"
+                  />
+                ) : (
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-cyan-400 font-bold text-slate-950 shadow-lg shadow-cyan-500/20">
+                    {initials}
+                  </div>
+                )}
+
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-white">
+                    {adminName}
+                  </p>
+                  <p className="truncate text-xs uppercase tracking-[0.18em] text-cyan-300">
+                    Admin Access
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <nav className="relative space-y-2 px-4 py-5">
           <NavLink to="/admin/dashboard" className={linkStyle}>
             <FiHome size={20} />
             {isOpen && <span>Dashboard</span>}
+          </NavLink>
+
+          <NavLink to="/admin/profile" className={linkStyle}>
+            <FiUser size={20} />
+            {isOpen && <span>Profile</span>}
           </NavLink>
 
           <div>
@@ -229,11 +294,6 @@ export const AdminSidebar = () => {
             {isOpen && <span>Inspection</span>}
           </NavLink>
 
-          <NavLink to="/admin/settings" className={linkStyle}>
-            <FiSettings size={20} />
-            {isOpen && <span>Settings</span>}
-          </NavLink>
-
           <div className="pt-4">
             <button
               onClick={handleLogout}
@@ -244,25 +304,6 @@ export const AdminSidebar = () => {
             </button>
           </div>
         </nav>
-
-        {isOpen && (
-          <div className="absolute bottom-0 left-0 right-0 border-t border-white/10 bg-[#0b1120]/70 p-4 backdrop-blur">
-            <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-cyan-400 font-bold text-slate-950 shadow-lg shadow-cyan-500/20">
-                {initials}
-              </div>
-
-              <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-white">
-                  {adminName}
-                </p>
-                <p className="truncate text-xs text-slate-400">
-                  admin@carscout.com
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
       </aside>
 
       <main className="flex-1 overflow-auto bg-[#0b1120]">

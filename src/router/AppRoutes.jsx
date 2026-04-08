@@ -63,7 +63,8 @@ const router = createBrowserRouter([
       { path: "testdrives", element: <TestDrives /> },
       { path: "inspection", element: <Inspection /> },
       { path: "users", element: <ManageUsers /> },
-      { path: "adduser", element: <AddUser /> }
+      { path: "adduser", element: <AddUser /> },
+      { path: "profile", element : <Profile/>}
     ]
   },
 
