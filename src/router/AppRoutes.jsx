@@ -12,6 +12,7 @@ import MyOffers from "../pages/user/Myoffers";
 import CarDetail from "../pages/user/CarDetail";
 import Notifications from "../pages/user/Notifications";
 import MyTestDrives from "../pages/user/MyTestDrives";
+import AboutUs from "../pages/user/AboutUs";
 
 import Dashboard from "../pages/admin/Dashboard";
 import AddCar from "../pages/admin/AddCar";
@@ -43,13 +44,14 @@ const router = createBrowserRouter([
     element: <UserNavbar />,
     children: [
       { index: true, element: <Home /> },
+      { path: "about", element: <AboutUs /> },
       { path: "cars", element: <CarList /> },
       { path: "offers", element: <MyOffers /> },
       { path: "car/:id", element: <CarDetail /> },
       { path: "notifications", element: <Notifications /> },
       { path: "testdrives", element: <MyTestDrives /> },
-      { path: "profile", element : <Profile/>}
-    ]
+      { path: "profile", element: <Profile /> },
+    ],
   },
 
   {
@@ -64,8 +66,8 @@ const router = createBrowserRouter([
       { path: "inspection", element: <Inspection /> },
       { path: "users", element: <ManageUsers /> },
       { path: "adduser", element: <AddUser /> },
-      { path: "profile", element : <Profile/>}
-    ]
+      { path: "profile", element: <Profile /> },
+    ],
   },
 
   {
@@ -73,14 +75,15 @@ const router = createBrowserRouter([
     element: <UserNavbar />,
     children: [
       { index: true, element: <SellerHome /> },
+      { path: "about", element: <AboutUs /> },
       { path: "addcar", element: <AddCarWizard /> },
       { path: "offers", element: <SellerOffers /> },
       { path: "my-listings", element: <MyListings /> },
       { path: "notifications", element: <Notifications /> },
       { path: "testdrives", element: <SellerTestDrives /> },
-      { path: "profile", element : <Profile/>}
-    ]
-  }
+      { path: "profile", element: <Profile /> },
+    ],
+  },
 ]);
 
 const AppRouter = () => {
