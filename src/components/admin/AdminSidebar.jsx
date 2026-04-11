@@ -12,6 +12,7 @@ import {
   FiTag,
   FiCalendar,
   FiUser,
+  FiCreditCard,
 } from "react-icons/fi";
 import { FaCar, FaUserPlus } from "react-icons/fa";
 
@@ -282,6 +283,11 @@ export const AdminSidebar = () => {
           <NavLink to="/admin/offers" className={linkStyle}>
             <FiTag size={20} />
             {isOpen && <span>Offers</span>}
+          </NavLink>
+
+          <NavLink to="/admin/payments" className={linkStyle}>
+            <FiCreditCard size={20} />
+            {isOpen && <span>Payments</span>}
           </NavLink>
 
           <NavLink to="/admin/testdrives" className={linkStyle}>

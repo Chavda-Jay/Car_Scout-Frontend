@@ -23,6 +23,7 @@ import {
   FiCalendar,
   FiTrendingUp,
   FiActivity,
+  FiCreditCard,
 } from "react-icons/fi";
 
 const AnimatedNumber = ({ value, duration = 1200 }) => {
@@ -55,16 +56,18 @@ const Dashboard = () => {
   const [offers, setOffers] = useState([]);
   const [inspections, setInspections] = useState([]);
   const [testDrives, setTestDrives] = useState([]);
+  const [payments, setPayments] = useState([]);
 
   const fetchData = async () => {
     try {
-      const [carRes, userRes, offerRes, inspectionRes, testDriveRes] =
+      const [carRes, userRes, offerRes, inspectionRes, testDriveRes, paymentRes] =
         await Promise.all([
           API.get("/car/cars"),
           API.get("/user/users"),
           API.get("/offer/"),
           API.get("/inspection/inspections"),
           API.get("/testdrive/"),
+          API.get("/admin/payments"),
         ]);
 
       setCars(carRes.data?.data || []);
@@ -72,6 +75,7 @@ const Dashboard = () => {
       setOffers(offerRes.data?.data || []);
       setInspections(inspectionRes.data?.data || []);
       setTestDrives(testDriveRes.data?.data || []);
+      setPayments(paymentRes.data?.data || []);
     } catch (err) {
       console.log(err);
     }
@@ -89,6 +93,10 @@ const Dashboard = () => {
   const acceptedTestDrives = testDrives.filter((t) => t.status === "accepted").length;
   const completedTestDrives = testDrives.filter((t) => t.status === "completed").length;
   const rejectedTestDrives = testDrives.filter((t) => t.status === "rejected").length;
+
+  const paidPayments = payments.filter((p) => p.status === "paid").length;
+  const pendingPayments = payments.filter((p) => p.status === "created").length;
+  const failedPayments = payments.filter((p) => p.status === "failed").length;
 
   const offerStats = [
     { name: "Pending", value: pendingOffers, color: "#22d3ee" },
@@ -109,6 +117,7 @@ const Dashboard = () => {
     { name: "Offers", value: offers.length, fill: "#f59e0b" },
     { name: "Drives", value: testDrives.length, fill: "#60a5fa" },
     { name: "Inspect", value: inspections.length, fill: "#a78bfa" },
+    { name: "Payments", value: payments.length, fill: "#34d399" },
   ];
 
   const recentCars = useMemo(() => cars.slice(0, 3), [cars]);
@@ -161,6 +170,14 @@ const Dashboard = () => {
       color: "from-violet-400 to-violet-500",
       glow: "shadow-violet-500/20",
     },
+    {
+      title: "Payments",
+      value: payments.length,
+      subtitle: "Token transactions",
+      icon: <FiCreditCard size={18} />,
+      color: "from-emerald-400 to-teal-500",
+      glow: "shadow-emerald-500/20",
+    },
   ];
 
   return (
@@ -176,7 +193,7 @@ const Dashboard = () => {
               Live marketplace intelligence
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
-              Track offers, test drives, inspections, and platform growth from
+              Track offers, payments, test drives, inspections, and platform growth from
               one premium dashboard built to feel active and decision-ready.
             </p>
 
@@ -190,6 +207,11 @@ const Dashboard = () => {
                 <FiTrendingUp />
                 {conversionRate}% Offer Conversion
               </div>
+
+              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-sm text-emerald-300">
+                <FiCreditCard />
+                {paidPayments} Successful Payments
+              </div>
             </div>
           </div>
 
@@ -200,30 +222,30 @@ const Dashboard = () => {
                 <p className="text-sm uppercase tracking-[0.18em]">Demand Pulse</p>
               </div>
               <p className="mt-3 text-3xl font-bold text-white">
-                <AnimatedNumber value={pendingOffers + pendingTestDrives} />
+                <AnimatedNumber value={pendingOffers + pendingTestDrives + pendingPayments} />
               </p>
               <p className="mt-2 text-sm text-slate-400">
-                Pending buyer actions need attention
+                Pending platform actions need attention
               </p>
             </div>
 
             <div className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur">
               <div className="flex items-center gap-2 text-emerald-300">
-                <FiCalendar />
-                <p className="text-sm uppercase tracking-[0.18em]">Drive Readiness</p>
+                <FiCreditCard />
+                <p className="text-sm uppercase tracking-[0.18em]">Payment Health</p>
               </div>
               <p className="mt-3 text-3xl font-bold text-white">
-                <AnimatedNumber value={acceptedTestDrives} />
+                <AnimatedNumber value={paidPayments} />
               </p>
               <p className="mt-2 text-sm text-slate-400">
-                Accepted test drive bookings lined up
+                Successful token payments completed
               </p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-5">
+      <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-6">
         {stats.map((item, index) => (
           <div
             key={item.title}
@@ -334,42 +356,99 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className="mt-8 grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+      <div className="mt-8 grid gap-6 xl:grid-cols-[1fr_1fr]">
         <div
           className="rounded-[30px] border border-white/10 bg-[#111827] p-6 shadow-[0_12px_30px_rgba(0,0,0,0.18)]"
           style={{ animation: "fadeUp 0.6s ease 0.4s both" }}
         >
-          <p className="text-sm uppercase tracking-[0.2em] text-amber-300">
-            Quick Summary
-          </p>
-          <h2 className="mt-2 text-2xl font-bold">Operational Snapshot</h2>
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="text-sm uppercase tracking-[0.2em] text-amber-300">
+                Quick Summary
+              </p>
+              <h2 className="mt-2 text-2xl font-bold">Operational Snapshot</h2>
+            </div>
 
-          <div className="mt-6 space-y-4">
-            <div className="rounded-2xl bg-[#0f172a] p-4 transition duration-300 hover:bg-[#132033]">
-              <p className="text-sm text-slate-400">Pending Offers</p>
-              <p className="mt-2 text-2xl font-bold text-cyan-300">
+            <div className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.18em] text-slate-400">
+              Live Metrics
+            </div>
+          </div>
+
+          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            <div className="group rounded-3xl border border-cyan-400/10 bg-gradient-to-br from-cyan-400/10 to-transparent p-4 transition duration-300 hover:border-cyan-400/20 hover:bg-cyan-400/10">
+              <p className="text-xs uppercase tracking-[0.18em] text-slate-400">
+                Pending Offers
+              </p>
+              <p className="mt-3 text-3xl font-bold text-cyan-300">
                 <AnimatedNumber value={pendingOffers} />
               </p>
+              <p className="mt-2 text-sm text-slate-500">
+                New negotiations waiting for response
+              </p>
             </div>
 
-            <div className="rounded-2xl bg-[#0f172a] p-4 transition duration-300 hover:bg-[#132033]">
-              <p className="text-sm text-slate-400">Accepted Offers</p>
-              <p className="mt-2 text-2xl font-bold text-emerald-300">
+            <div className="group rounded-3xl border border-emerald-400/10 bg-gradient-to-br from-emerald-400/10 to-transparent p-4 transition duration-300 hover:border-emerald-400/20 hover:bg-emerald-400/10">
+              <p className="text-xs uppercase tracking-[0.18em] text-slate-400">
+                Accepted Offers
+              </p>
+              <p className="mt-3 text-3xl font-bold text-emerald-300">
                 <AnimatedNumber value={acceptedOffers} />
               </p>
-            </div>
-
-            <div className="rounded-2xl bg-[#0f172a] p-4 transition duration-300 hover:bg-[#132033]">
-              <p className="text-sm text-slate-400">Pending Test Drives</p>
-              <p className="mt-2 text-2xl font-bold text-blue-300">
-                <AnimatedNumber value={pendingTestDrives} />
+              <p className="mt-2 text-sm text-slate-500">
+                Deals currently moving forward
               </p>
             </div>
 
-            <div className="rounded-2xl bg-[#0f172a] p-4 transition duration-300 hover:bg-[#132033]">
-              <p className="text-sm text-slate-400">Completed Test Drives</p>
-              <p className="mt-2 text-2xl font-bold text-cyan-300">
-                <AnimatedNumber value={completedTestDrives} />
+            <div className="group rounded-3xl border border-blue-400/10 bg-gradient-to-br from-blue-400/10 to-transparent p-4 transition duration-300 hover:border-blue-400/20 hover:bg-blue-400/10">
+              <p className="text-xs uppercase tracking-[0.18em] text-slate-400">
+                Drive Pipeline
+              </p>
+              <p className="mt-3 text-3xl font-bold text-blue-300">
+                <AnimatedNumber value={pendingTestDrives + acceptedTestDrives} />
+              </p>
+              <p className="mt-2 text-sm text-slate-500">
+                Pending and approved drive requests
+              </p>
+            </div>
+
+            <div className="group rounded-3xl border border-amber-400/10 bg-gradient-to-br from-amber-400/10 to-transparent p-4 transition duration-300 hover:border-amber-400/20 hover:bg-amber-400/10">
+              <p className="text-xs uppercase tracking-[0.18em] text-slate-400">
+                Payment Monitor
+              </p>
+              <p className="mt-3 text-3xl font-bold text-amber-300">
+                <AnimatedNumber value={paidPayments + pendingPayments} />
+              </p>
+              <p className="mt-2 text-sm text-slate-500">
+                Successful and in-progress token payments
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            <div className="rounded-2xl border border-white/10 bg-[#0f172a] px-4 py-3">
+              <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
+                Paid
+              </p>
+              <p className="mt-2 text-xl font-bold text-emerald-300">
+                <AnimatedNumber value={paidPayments} />
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-[#0f172a] px-4 py-3">
+              <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
+                Pending
+              </p>
+              <p className="mt-2 text-xl font-bold text-amber-300">
+                <AnimatedNumber value={pendingPayments} />
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-[#0f172a] px-4 py-3">
+              <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
+                Failed
+              </p>
+              <p className="mt-2 text-xl font-bold text-red-300">
+                <AnimatedNumber value={failedPayments} />
               </p>
             </div>
           </div>

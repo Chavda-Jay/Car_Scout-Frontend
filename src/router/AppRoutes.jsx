@@ -32,6 +32,7 @@ import SellerOffers from "../pages/seller/SellerOffers";
 import SellerTestDrives from "../pages/seller/SellerTestDrives";
 import AddCarWizard from "../pages/seller/AddCarWizard";
 import Profile from "../pages/user/Profile";
+import Payments from "../pages/admin/Payments";
 
 const router = createBrowserRouter([
   { path: "/", element: <Login /> },
@@ -67,6 +68,7 @@ const router = createBrowserRouter([
       { path: "users", element: <ManageUsers /> },
       { path: "adduser", element: <AddUser /> },
       { path: "profile", element: <Profile /> },
+      { path: "payments", element: <Payments/>},
     ],
   },
 

@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import API from "../../api/Api";
 import { toast } from "react-toastify";
+import loadRazorpay from "../../utils/loadRazorpay";
 
 const MyOffers = () => {
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [payingOfferId, setPayingOfferId] = useState(null);
 
   const getOffers = async () => {
     try {
@@ -31,15 +33,83 @@ const MyOffers = () => {
   const handleBuyerDecision = async (id, status) => {
     try {
       await API.put(`/offer/${id}`, { status, actionBy: "buyer" });
-
-      toast.success(`You ${status} the offer ✅`);
-
-      setOffers((prev) =>
-        prev.map((o) => (o._id === id ? { ...o, status } : o))
-      );
+      toast.success(`You ${status} the offer`);
+      getOffers();
     } catch (err) {
       console.log(err);
-      toast.error("Action failed ❌");
+      toast.error(err?.response?.data?.message || "Action failed");
+    }
+  };
+
+  const handlePayToken = async (offer) => {
+    try {
+      setPayingOfferId(offer._id);
+
+      const scriptLoaded = await loadRazorpay();
+      if (!scriptLoaded) {
+        toast.error("Razorpay SDK failed to load");
+        return;
+      }
+
+      const orderRes = await API.post("/payment/create-order", {
+        offerId: offer._id
+      });
+
+      const { orderId, amount, currency, key, tokenAmount, agreedPrice } =
+        orderRes.data.data;
+
+      const user = JSON.parse(localStorage.getItem("user"));
+
+      const options = {
+        key,
+        amount,
+        currency,
+        name: "CarScout",
+        description: "Car Booking Token Payment",
+        order_id: orderId,
+        handler: async function (response) {
+          try {
+            await API.post("/payment/verify", {
+              offerId: offer._id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature
+            });
+
+            toast.success("Token payment successful");
+            getOffers();
+          } catch (err) {
+            console.log(err);
+            toast.error(err?.response?.data?.message || "Payment verification failed");
+          }
+        },
+        prefill: {
+          name: user?.firstName || "Buyer",
+          email: user?.email || "",
+          contact: user?.phone || ""
+        },
+        notes: {
+          offerId: offer._id,
+          agreedPrice: agreedPrice,
+          tokenAmount: tokenAmount
+        },
+        theme: {
+          color: "#06b6d4"
+        },
+        modal: {
+          ondismiss: function () {
+            toast.info("Payment popup closed");
+          }
+        }
+      };
+
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.open();
+    } catch (err) {
+      console.log(err);
+      toast.error(err?.response?.data?.message || "Payment start failed");
+    } finally {
+      setPayingOfferId(null);
     }
   };
 
@@ -60,8 +130,7 @@ const MyOffers = () => {
           </p>
           <h1 className="mt-2 text-3xl font-bold">My Offers</h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
-            Track your offers, review seller counter prices, and make your final
-            decision through a clean and professional interface.
+            Track your offers, review seller counter prices, and pay token amount after final agreement.
           </p>
         </div>
 
@@ -80,7 +149,14 @@ const MyOffers = () => {
                   ? "bg-amber-400/10 text-amber-300 border-amber-400/20"
                   : offer.status === "accepted"
                   ? "bg-emerald-400/10 text-emerald-300 border-emerald-400/20"
+                  : offer.status === "countered"
+                  ? "bg-cyan-400/10 text-cyan-300 border-cyan-400/20"
                   : "bg-red-400/10 text-red-300 border-red-400/20";
+
+              const finalPrice =
+                offer.agreedPrice || offer.counterOffer || offer.offerPrice || 0;
+              const remainingAmount =
+                Number(finalPrice || 0) - Number(offer.tokenAmount || 0);
 
               return (
                 <div
@@ -124,39 +200,93 @@ const MyOffers = () => {
                           : "Waiting for seller response"}
                       </p>
                     </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="rounded-2xl bg-[#0f172a] px-4 py-3">
+                        <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">
+                          Token Amount
+                        </p>
+                        <p className="mt-1 text-sm font-semibold text-emerald-300">
+                          {offer.tokenAmount
+                            ? `₹ ${Number(offer.tokenAmount).toLocaleString("en-IN")}`
+                            : "Not set"}
+                        </p>
+                      </div>
+
+                      <div className="rounded-2xl bg-[#0f172a] px-4 py-3">
+                        <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">
+                          Payment Status
+                        </p>
+                        <p className="mt-1 text-sm font-semibold text-white capitalize">
+                          {offer.paymentStatus || "not_required"}
+                        </p>
+                      </div>
+                    </div>
+
+                    {offer.status === "accepted" && (
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="rounded-2xl bg-[#0f172a] px-4 py-3">
+                          <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">
+                            Final Price
+                          </p>
+                          <p className="mt-1 text-sm font-semibold text-white">
+                            ₹ {Number(finalPrice).toLocaleString("en-IN")}
+                          </p>
+                        </div>
+
+                        <div className="rounded-2xl bg-[#0f172a] px-4 py-3">
+                          <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">
+                            Remaining
+                          </p>
+                          <p className="mt-1 text-sm font-semibold text-white">
+                            ₹ {Number(remainingAmount).toLocaleString("en-IN")}
+                          </p>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
-                  {offer.counterOffer && offer.status === "pending" && (
+                  {offer.status === "countered" && (
                     <div className="mt-5 flex flex-wrap gap-3">
                       <button
-                        onClick={() =>
-                          handleBuyerDecision(offer._id, "accepted")
-                        }
+                        onClick={() => handleBuyerDecision(offer._id, "accepted")}
                         className="rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-400"
                       >
-                        Accept
+                        Accept Counter
                       </button>
 
                       <button
-                        onClick={() =>
-                          handleBuyerDecision(offer._id, "rejected")
-                        }
+                        onClick={() => handleBuyerDecision(offer._id, "rejected")}
                         className="rounded-xl bg-red-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-600"
                       >
-                        Reject
+                        Reject Counter
                       </button>
                     </div>
                   )}
 
-                  {offer.status === "accepted" && (
+                  {offer.status === "accepted" && offer.paymentStatus !== "paid" && (
+                    <div className="mt-5">
+                      <button
+                        onClick={() => handlePayToken(offer)}
+                        disabled={payingOfferId === offer._id}
+                        className="w-full rounded-xl bg-cyan-500 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {payingOfferId === offer._id
+                          ? "Processing..."
+                          : `Pay Token ₹ ${Number(offer.tokenAmount || 0).toLocaleString("en-IN")}`}
+                      </button>
+                    </div>
+                  )}
+
+                  {offer.paymentStatus === "paid" && (
                     <div className="mt-4 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm font-medium text-emerald-300">
-                      Deal Accepted
+                      Token paid successfully. Car is now reserved.
                     </div>
                   )}
 
                   {offer.status === "rejected" && (
                     <div className="mt-4 rounded-2xl border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm font-medium text-red-300">
-                      Deal Rejected
+                      Deal rejected.
                     </div>
                   )}
                 </div>
