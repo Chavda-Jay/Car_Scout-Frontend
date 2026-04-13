@@ -8,6 +8,9 @@ import "swiper/css/thumbs";
 import { Navigation, Thumbs } from "swiper/modules";
 import { toast } from "react-toastify";
 
+const fallbackImage =
+  "https://via.placeholder.com/1200x700/0f172a/94a3b8?text=Car+Image";
+
 const CarDetails = () => {
   const { id } = useParams();
 
@@ -77,20 +80,20 @@ const CarDetails = () => {
 
     const buyerId = user._id;
     const sellerId = car?.sellerId?._id;
-    const carId = car._id;
+    const carId = car?._id;
 
     if (!buyerId) {
-      toast.error("Login required ❌");
+      toast.error("Login required");
       return;
     }
 
     if (!sellerId) {
-      toast.error("Seller not found ❌");
+      toast.error("Seller not found");
       return;
     }
 
     if (!price || Number(price) <= 0) {
-      toast.warning("Enter valid price ⚠️");
+      toast.warning("Enter valid price");
       return;
     }
 
@@ -103,14 +106,14 @@ const CarDetails = () => {
         message,
       });
 
-      toast.success("Offer Sent ✅");
+      toast.success("Offer sent successfully");
       setSuccessMsg("Your offer has been sent successfully.");
       setPrice("");
       setMessage("");
       setShowOfferModal(false);
     } catch (err) {
       console.log(err);
-      toast.error("Offer Failed ❌");
+      toast.error("Offer failed");
     }
   };
 
@@ -122,17 +125,17 @@ const CarDetails = () => {
     const carId = car?._id;
 
     if (!buyerId) {
-      toast.error("Login required ❌");
+      toast.error("Login required");
       return;
     }
 
     if (!sellerId) {
-      toast.error("Seller not found ❌");
+      toast.error("Seller not found");
       return;
     }
 
     if (!requestedDate || !requestedTime || !testDriveLocation) {
-      toast.warning("Please fill date, time and location ⚠️");
+      toast.warning("Please fill date, time and location");
       return;
     }
 
@@ -147,7 +150,7 @@ const CarDetails = () => {
         message: testDriveMessage,
       });
 
-      toast.success("Test drive booked successfully ✅");
+      toast.success("Test drive booked successfully");
       setSuccessMsg("Your test drive request has been sent successfully.");
       setRequestedDate("");
       setRequestedTime("");
@@ -156,36 +159,55 @@ const CarDetails = () => {
       setShowTestDriveModal(false);
     } catch (err) {
       console.log(err);
-      toast.error("Test drive booking failed ❌");
+      toast.error("Test drive booking failed");
     }
   };
 
   if (loading) {
-    return <p className="mt-10 text-center text-white">Loading...</p>;
+    return (
+      <div className="min-h-screen bg-[#0b1120] px-4 py-10 text-white">
+        <p className="text-center">Loading...</p>
+      </div>
+    );
   }
 
   if (!car) {
-    return <p className="mt-10 text-center text-white">Car not found</p>;
+    return (
+      <div className="min-h-screen bg-[#0b1120] px-4 py-10 text-white">
+        <p className="text-center">Car not found</p>
+      </div>
+    );
   }
 
+  const carImages =
+    Array.isArray(car.images) && car.images.length > 0
+      ? car.images
+      : [fallbackImage];
+
   return (
-    <div className="min-h-screen bg-[#0b1120] p-6 text-white">
-      <div className="mx-auto max-w-7xl">
-        <div className="grid gap-10 md:grid-cols-2">
-          <div>
+    <div className="min-h-screen w-full bg-[#0b1120] px-4 py-4 text-white sm:px-6 sm:py-6 lg:px-10">
+      <div className="mx-auto w-full max-w-7xl">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-10">
+          <div className="min-w-0">
             <Swiper
               spaceBetween={10}
-              navigation={true}
-              thumbs={{ swiper: thumbsSwiper }}
+              navigation
+              thumbs={{
+                swiper:
+                  thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null,
+              }}
               modules={[Navigation, Thumbs]}
-              className="car-details-swiper mb-4 overflow-hidden rounded-2xl border border-white/10 bg-[#111827]"
+              className="car-details-swiper mb-3 overflow-hidden rounded-2xl border border-white/10 bg-[#111827]"
             >
-              {car.images?.map((img, index) => (
+              {carImages.map((img, index) => (
                 <SwiperSlide key={index}>
                   <img
-                    src={img}
-                    alt="car"
-                    className="h-96 w-full object-cover"
+                    src={img || fallbackImage}
+                    alt={`car-${index}`}
+                    onError={(e) => {
+                      e.currentTarget.src = fallbackImage;
+                    }}
+                    className="block h-56 w-full bg-[#0f172a] object-cover sm:h-72 md:h-80 lg:h-[420px]"
                   />
                 </SwiperSlide>
               ))}
@@ -194,33 +216,40 @@ const CarDetails = () => {
             <Swiper
               onSwiper={setThumbsSwiper}
               spaceBetween={10}
-              slidesPerView={4}
-              freeMode={true}
-              watchSlidesProgress={true}
+              slidesPerView={3}
+              breakpoints={{
+                480: { slidesPerView: 4 },
+                768: { slidesPerView: 4 },
+              }}
+              watchSlidesProgress
               modules={[Thumbs]}
+              className="min-w-0"
             >
-              {car.images?.map((img, index) => (
+              {carImages.map((img, index) => (
                 <SwiperSlide key={index}>
                   <img
-                    src={img}
-                    alt="thumb"
-                    className="h-24 w-full cursor-pointer rounded-xl border border-white/10 object-cover"
+                    src={img || fallbackImage}
+                    alt={`thumb-${index}`}
+                    onError={(e) => {
+                      e.currentTarget.src = fallbackImage;
+                    }}
+                    className="h-16 w-full cursor-pointer rounded-xl border border-white/10 bg-[#0f172a] object-cover sm:h-20"
                   />
                 </SwiperSlide>
               ))}
             </Swiper>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-[#111827] p-6 shadow-lg">
-            <h1 className="mb-2 text-3xl font-bold">
+          <div className="min-w-0 rounded-2xl border border-white/10 bg-[#111827] p-4 shadow-lg sm:p-6">
+            <h1 className="mb-2 break-words text-2xl font-bold sm:text-3xl">
               {car.brand} {car.model}
             </h1>
 
-            <p className="text-slate-400">
+            <p className="text-sm leading-6 text-slate-400 sm:text-base">
               {car.year} • {car.fuelType} • {car.location}
             </p>
 
-            <p className="mt-4 text-3xl font-bold text-emerald-400">
+            <p className="mt-4 break-words text-2xl font-bold text-emerald-400 sm:text-3xl">
               ₹ {Number(car.price || 0).toLocaleString("en-IN")}
             </p>
 
@@ -230,15 +259,15 @@ const CarDetails = () => {
               </div>
             )}
 
-            <div className="mt-6 grid grid-cols-2 gap-4">
+            <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
               <div className="rounded-xl border border-white/10 bg-[#0f172a] p-4">
                 <p className="text-sm text-slate-500">Brand</p>
-                <p className="mt-1 font-semibold">{car.brand}</p>
+                <p className="mt-1 break-words font-semibold">{car.brand}</p>
               </div>
 
               <div className="rounded-xl border border-white/10 bg-[#0f172a] p-4">
                 <p className="text-sm text-slate-500">Model</p>
-                <p className="mt-1 font-semibold">{car.model}</p>
+                <p className="mt-1 break-words font-semibold">{car.model}</p>
               </div>
 
               <div className="rounded-xl border border-white/10 bg-[#0f172a] p-4">
@@ -248,21 +277,21 @@ const CarDetails = () => {
 
               <div className="rounded-xl border border-white/10 bg-[#0f172a] p-4">
                 <p className="text-sm text-slate-500">Fuel</p>
-                <p className="mt-1 font-semibold">{car.fuelType}</p>
+                <p className="mt-1 break-words font-semibold">{car.fuelType}</p>
               </div>
             </div>
 
-            <div className="mt-8 space-y-3">
+            <div className="mt-8 flex flex-col gap-3">
               <button
                 onClick={() => setShowTestDriveModal(true)}
-                className="w-full rounded-xl bg-emerald-500 py-3 font-semibold transition hover:bg-emerald-400"
+                className="w-full rounded-xl bg-emerald-500 px-4 py-3 font-semibold transition hover:bg-emerald-400"
               >
                 Book Test Drive
               </button>
 
               <button
                 onClick={() => setShowOfferModal(true)}
-                className="w-full rounded-xl bg-cyan-500 py-3 font-semibold text-slate-950 transition hover:bg-cyan-400"
+                className="w-full rounded-xl bg-cyan-500 px-4 py-3 font-semibold text-slate-950 transition hover:bg-cyan-400"
               >
                 Make Offer
               </button>
@@ -270,19 +299,19 @@ const CarDetails = () => {
           </div>
         </div>
 
-        <div className="mt-10 grid gap-6 lg:grid-cols-2">
-          <div className="rounded-2xl border border-white/10 bg-[#111827] p-6">
+        <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <div className="rounded-2xl border border-white/10 bg-[#111827] p-4 sm:p-6">
             <h2 className="mb-2 text-xl font-bold">Description</h2>
-            <p className="leading-7 text-slate-300">
+            <p className="break-words text-sm leading-7 text-slate-300 sm:text-base">
               {car.description || "No description available"}
             </p>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-[#111827] p-6">
-            <div className="mb-4 flex items-center justify-between">
+          <div className="rounded-2xl border border-white/10 bg-[#111827] p-4 sm:p-6">
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <h2 className="text-xl font-bold">Inspection Report</h2>
               {inspection?.rating && (
-                <div className="rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 text-sm font-semibold text-amber-300">
+                <div className="w-fit rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 text-sm font-semibold text-amber-300">
                   ⭐ {inspection.rating}/5
                 </div>
               )}
@@ -292,21 +321,21 @@ const CarDetails = () => {
               <div className="space-y-4">
                 <div className="rounded-xl border border-white/10 bg-[#0f172a] p-4">
                   <p className="text-sm text-slate-500">Full Report</p>
-                  <p className="mt-2 leading-7 text-slate-300">
+                  <p className="mt-2 break-words text-sm leading-7 text-slate-300 sm:text-base">
                     {inspection.report}
                   </p>
                 </div>
 
                 <div className="rounded-xl border border-white/10 bg-[#0f172a] p-4">
                   <p className="text-sm text-slate-500">Accident History</p>
-                  <p className="mt-2 text-slate-300">
+                  <p className="mt-2 break-words text-sm text-slate-300 sm:text-base">
                     {inspection.accidentHistory}
                   </p>
                 </div>
 
                 <div className="rounded-xl border border-white/10 bg-[#0f172a] p-4">
                   <p className="text-sm text-slate-500">Service History</p>
-                  <p className="mt-2 text-slate-300">
+                  <p className="mt-2 break-words text-sm text-slate-300 sm:text-base">
                     {inspection.serviceHistory}
                   </p>
                 </div>
@@ -323,9 +352,9 @@ const CarDetails = () => {
       </div>
 
       {showOfferModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#111827] p-6 shadow-2xl">
-            <h2 className="mb-1 text-center text-2xl font-bold">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 py-6 backdrop-blur-sm">
+          <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-white/10 bg-[#111827] p-5 shadow-2xl sm:p-6">
+            <h2 className="mb-1 text-center text-xl font-bold sm:text-2xl">
               Make an Offer
             </h2>
             <p className="mb-5 text-center text-sm text-slate-400">
@@ -356,7 +385,7 @@ const CarDetails = () => {
               />
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row">
               <button
                 onClick={handleSubmitOffer}
                 className="w-full rounded-xl bg-cyan-500 py-3 font-semibold text-slate-950 transition hover:bg-cyan-400"
@@ -376,9 +405,9 @@ const CarDetails = () => {
       )}
 
       {showTestDriveModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#111827] p-6 shadow-2xl">
-            <h2 className="mb-1 text-center text-2xl font-bold">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 py-6 backdrop-blur-sm">
+          <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-white/10 bg-[#111827] p-5 shadow-2xl sm:p-6">
+            <h2 className="mb-1 text-center text-xl font-bold sm:text-2xl">
               Book Test Drive
             </h2>
             <p className="mb-5 text-center text-sm text-slate-400">
@@ -454,7 +483,7 @@ const CarDetails = () => {
               />
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row">
               <button
                 onClick={handleBookTestDrive}
                 className="w-full rounded-xl bg-emerald-500 py-3 font-semibold text-white transition hover:bg-emerald-400"
@@ -492,6 +521,19 @@ const CarDetails = () => {
 
         .swiper-slide-thumb-active img {
           border-color: rgba(34, 211, 238, 0.5);
+        }
+
+        @media (max-width: 640px) {
+          .car-details-swiper .swiper-button-prev,
+          .car-details-swiper .swiper-button-next {
+            width: 34px;
+            height: 34px;
+          }
+
+          .car-details-swiper .swiper-button-prev:after,
+          .car-details-swiper .swiper-button-next:after {
+            font-size: 12px;
+          }
         }
       `}</style>
     </div>
