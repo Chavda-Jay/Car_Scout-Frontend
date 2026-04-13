@@ -29,7 +29,7 @@ const Signup = () => {
 
 const submitHandler = async (data) => {
   try {
-    const res = await axios.post("http://localhost:3800/user/register", data);
+    const res = await axios.post("https://car-scout-backend-production.up.railway.app/user/register", data);
 
     if (res.status === 200 || res.status === 201) {
       toast.success("User Registered Successfully");

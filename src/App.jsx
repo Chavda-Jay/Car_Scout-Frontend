@@ -9,7 +9,7 @@ import axios from 'axios'
 
 function App() {
   const [count, setCount] = useState(0)
-  //axios.defaults.baseURL = "http://localhost:3800"
+  axios.defaults.baseURL = "https://car-scout-backend-production.up.railway.app"
 
   return (
     <>
